@@ -97,7 +97,9 @@ export function registerVersionTools(
 
       const serviceId = String(service["id"]);
 
-      const versionSet: Record<string, unknown> = {};
+      const versionSet: Record<string, unknown> = {
+        llm_model_preferences: {},
+      };
       if (latest) {
         // The API will pin to latest when null is passed
         versionSet["agent_version_number"] = null;
@@ -168,17 +170,27 @@ export function registerVersionTools(
         );
       }
 
+      // Ensure llm_model_preferences is present
+      const promotedSet = {
+        ...sourceSet,
+        llm_model_preferences:
+          (sourceSet["llm_model_preferences"] as Record<string, unknown>) ?? {},
+      };
+
       // Copy source set to target
       const result = await client.request(
         `service/${serviceId}/version_sets/${target}/`,
         {
           method: "PUT",
-          body: { version_set: sourceSet },
+          body: { version_set: promotedSet },
         },
       );
 
+      const detail = Object.keys(result as Record<string, unknown>).length > 0
+        ? `\n${JSON.stringify(result, null, 2)}`
+        : "";
       return textResult(
-        `Promoted "${source}" -> "${target}" for service "${service_name}".\n${JSON.stringify(result, null, 2)}`,
+        `Promoted "${source}" -> "${target}" for service "${service_name}".${detail}`,
       );
     },
   );
@@ -205,12 +217,21 @@ export function registerVersionTools(
           : "organization/service_hierarchical_state_machine";
 
       // Get the specific version
-      const versionResp = await client.request<Record<string, unknown>>(
-        `${apiPath}/${entity_id}/`,
+      const listKey =
+        entity_type === "agent" ? "agents" : "service_hierarchical_state_machines";
+      const versionListResp = await client.request<Record<string, unknown>>(
+        `${apiPath}/${entity_id}/version`,
         {
-          queryParams: { version: String(version_number) },
+          queryParams: { version: String(version_number), limit: "1" },
         },
       );
+      const versions = versionListResp[listKey] as Record<string, unknown>[] | undefined;
+      if (!versions || versions.length === 0) {
+        return textResult(
+          `Version ${version_number} not found for ${entity_type}/${entity_id}.`,
+        );
+      }
+      const versionResp = versions[0];
 
       // Create a new version with the old content
       const result = await client.request(`${apiPath}/${entity_id}/`, {

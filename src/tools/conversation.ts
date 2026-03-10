@@ -213,7 +213,6 @@ export function registerConversationTools(
         // Send the message
         agentMsg = [];
         try {
-          // Use multipart-like body for interact endpoint
           const interactStream = await client.requestStream(
             `conversation/${conversationId}/interact`,
             {
@@ -226,6 +225,7 @@ export function registerConversationTools(
                 request_format: "text",
                 response_format: "text",
               },
+              multipart: true,
             },
           );
 
@@ -359,7 +359,7 @@ export function registerConversationTools(
 
       // Find metric by name
       const metrics = await client.paginate<Record<string, unknown>>(
-        "metric",
+        "metric/",
         "metrics",
       );
       const metric = metrics.find(
@@ -375,7 +375,7 @@ export function registerConversationTools(
       const metricId = String(metric["id"]);
 
       const body: Record<string, unknown> = {
-        metric_id: metricId,
+        metric_ids: [metricId],
         conversation_id: conversation_id,
       };
       if (interaction_id) {
