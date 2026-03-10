@@ -33,6 +33,7 @@ export class ClientPool {
 
   /** Register credentials directly (e.g. from env vars) without persisting. */
   registerClient(orgId: string, creds: OrgCredentials): AmigoClient {
+    this.tokenManager.invalidate(orgId);
     const client = new AmigoClient(orgId, creds, this.tokenManager);
     this.clients.set(orgId, client);
     return client;
