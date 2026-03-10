@@ -19,19 +19,19 @@ export const ENTITY_TYPES = [
 
 export type EntityType = (typeof ENTITY_TYPES)[number];
 
-/** API path segments for each entity type. */
+/** API path segments for each entity type (list + create). */
 export const ENTITY_API_PATHS: Record<EntityType, string> = {
   agent: "organization/agent",
   context_graph: "organization/service_hierarchical_state_machine",
-  dynamic_behavior_set: "dynamic_behavior_set",
-  metric: "metric",
-  persona: "persona",
-  scenario: "scenario",
-  service: "service",
-  tool: "tool",
-  unit_test: "unit_test",
-  unit_test_set: "unit_test_set",
-  user_dimension: "user_dimension",
+  dynamic_behavior_set: "dynamic_behavior_set/",
+  metric: "metric/",
+  persona: "simulation/persona/",
+  scenario: "simulation/scenario/",
+  service: "service/",
+  tool: "tool/",
+  unit_test: "simulation/unit_test/",
+  unit_test_set: "simulation/unit_test_set/",
+  user_dimension: "organization/user_dimensions/",
 };
 
 /** Response list keys returned by each entity list endpoint. */
@@ -40,16 +40,34 @@ export const ENTITY_LIST_KEYS: Record<EntityType, string> = {
   context_graph: "service_hierarchical_state_machines",
   dynamic_behavior_set: "dynamic_behavior_sets",
   metric: "metrics",
-  persona: "personas",
-  scenario: "scenarios",
+  persona: "simulation_personas",
+  scenario: "simulation_scenarios",
   service: "services",
   tool: "tools",
-  unit_test: "unit_tests",
-  unit_test_set: "unit_test_sets",
+  unit_test: "simulation_unit_tests",
+  unit_test_set: "simulation_unit_test_sets",
   user_dimension: "user_dimensions",
 };
 
-/** Entity dependency order for sync operations. */
+/**
+ * API path segments for update/delete by ID.
+ * Some entity types use a different path pattern than list+create.
+ */
+export const ENTITY_ID_PATHS: Record<EntityType, string> = {
+  agent: "organization/agent",
+  context_graph: "organization/service_hierarchical_state_machine",
+  dynamic_behavior_set: "dynamic_behavior_set",
+  metric: "metric",
+  persona: "simulation/persona",
+  scenario: "simulation/scenario",
+  service: "service",
+  tool: "tool",
+  unit_test: "simulation/unit_test",
+  unit_test_set: "simulation/unit_test_set",
+  user_dimension: "organization/user_dimensions",
+};
+
+/** Entity dependency order -- create/update entities in this sequence to satisfy references. */
 export const ENTITY_SYNC_ORDER: EntityType[] = [
   "agent",
   "context_graph",

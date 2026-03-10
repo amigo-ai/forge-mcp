@@ -11,6 +11,7 @@ export interface RequestOptions {
   queryParams?: Record<string, string | string[]>;
   stream?: boolean;
   timeout?: number;
+  multipart?: boolean;
 }
 
 interface RetryConfig {
@@ -115,7 +116,9 @@ export class AmigoClient {
           throw new Error(`HTTP ${resp.status}: ${errorBody}`);
         }
 
-        return (await resp.json()) as T;
+        const text = await resp.text();
+        if (!text) return {} as T;
+        return JSON.parse(text) as T;
       } catch (err) {
         if (
           err instanceof Error &&
@@ -135,14 +138,27 @@ export class AmigoClient {
     apiPath: string,
     options: RequestOptions = {},
   ): Promise<AsyncIterable<string>> {
-    const { method = "POST", body, queryParams, timeout = 120000 } = options;
+    const { method = "POST", body, queryParams, timeout = 120000, multipart = false } = options;
     const url = this.buildUrl(apiPath, queryParams);
     const headers = await this.getHeaders();
+
+    let fetchBody: BodyInit | undefined;
+    if (body && multipart) {
+      const formData = new FormData();
+      for (const [key, val] of Object.entries(body as Record<string, unknown>)) {
+        formData.append(key, String(val));
+      }
+      fetchBody = formData;
+      // Let fetch set the Content-Type with boundary automatically
+      delete headers["Content-Type"];
+    } else if (body) {
+      fetchBody = JSON.stringify(body);
+    }
 
     const resp = await fetch(url, {
       method,
       headers,
-      body: body ? JSON.stringify(body) : undefined,
+      body: fetchBody,
       signal: AbortSignal.timeout(timeout),
     });
 
@@ -181,18 +197,18 @@ export class AmigoClient {
     apiPath: string,
     listKey: string,
     queryParams: Record<string, string | string[]> = {},
-    limit = 100,
+    limit = 20,
   ): Promise<T[]> {
     const items: T[] = [];
-    let continuationToken: string | undefined;
+    let continuationToken: number | undefined;
 
     do {
       const params: Record<string, string | string[]> = {
         ...queryParams,
         limit: String(limit),
       };
-      if (continuationToken) {
-        params["continuation_token"] = continuationToken;
+      if (continuationToken !== undefined) {
+        params["continuation_token"] = String(continuationToken);
       }
 
       const resp = await this.request<Record<string, unknown>>(apiPath, {
@@ -202,10 +218,10 @@ export class AmigoClient {
       const pageItems = resp[listKey] as T[] | undefined;
       if (pageItems) items.push(...pageItems);
 
-      continuationToken = resp["continuation_token"] as string | undefined;
+      continuationToken = resp["continuation_token"] as number | undefined;
       const hasMore = resp["has_more"] as boolean | undefined;
       if (!hasMore) break;
-    } while (continuationToken);
+    } while (continuationToken !== undefined);
 
     return items;
   }
