@@ -2,9 +2,11 @@
 
 MCP server that gives coding agents (Claude Code, Codex, Cursor, etc.) full access to the [Amigo](https://amigo.ai) Agent Forge platform -- manage AI agents, context graphs, services, conversations, and more.
 
-## Quick Start
+## Installation
 
-Add to your `.mcp.json` (Claude Code, Cursor, etc.):
+### Via npx (after npm publish)
+
+No install needed -- add directly to your `.mcp.json` (Claude Code, Cursor, etc.):
 
 ```json
 {
@@ -23,11 +25,60 @@ Add to your `.mcp.json` (Claude Code, Cursor, etc.):
 }
 ```
 
-Or skip the env vars and configure credentials interactively:
+### From GitHub
 
+Install directly from the repository without waiting for an npm publish:
+
+```json
+{
+  "mcpServers": {
+    "forge": {
+      "command": "npx",
+      "args": ["-y", "github:amigo-ai/forge-mcp"],
+      "env": {
+        "AMIGO_ORG_ID": "your-org",
+        "AMIGO_API_KEY": "your-api-key",
+        "AMIGO_API_KEY_ID": "your-api-key-id",
+        "AMIGO_USER_ID": "your-user-id"
+      }
+    }
+  }
+}
 ```
-> Use forge_add_org to add credentials for org "my-org"
+
+### From a local clone
+
+```bash
+git clone git@github.com:amigo-ai/forge-mcp.git
+cd forge-mcp
+npm install && npm run build
 ```
+
+Then point your `.mcp.json` at the built output:
+
+```json
+{
+  "mcpServers": {
+    "forge": {
+      "command": "node",
+      "args": ["/absolute/path/to/forge-mcp/dist/index.js"],
+      "env": {
+        "AMIGO_ORG_ID": "your-org",
+        "AMIGO_API_KEY": "your-api-key",
+        "AMIGO_API_KEY_ID": "your-api-key-id",
+        "AMIGO_USER_ID": "your-user-id"
+      }
+    }
+  }
+}
+```
+
+### Credentials
+
+You can provide credentials in two ways:
+
+1. **Environment variables** (shown above) -- the server authenticates and persists credentials automatically on startup.
+2. **Interactive setup** -- omit the `env` block and ask your coding agent to run `forge_add_org` with your credentials. They'll be validated and saved to `~/.amigo/credentials/{org_id}.json` for future sessions.
 
 ## Multi-Org Support
 
