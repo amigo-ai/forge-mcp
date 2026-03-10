@@ -7,7 +7,7 @@ import { DEFAULT_API_BASE_URL } from "./config/constants.js";
 import { saveCredentials, getGlobalConfig, saveGlobalConfig } from "./config/storage.js";
 import { registerOrgTools } from "./tools/org-management.js";
 import { registerEntityTools } from "./tools/entity-crud.js";
-import { registerSyncTools } from "./tools/entity-sync.js";
+
 import { registerConversationTools } from "./tools/conversation.js";
 import { registerVersionTools } from "./tools/version-management.js";
 import { registerValidationTools } from "./tools/validation.js";
@@ -61,7 +61,7 @@ if (envOrg && envApiKey && envApiKeyId && envUserId) {
 // Register all tools and resources
 registerOrgTools(server, pool);
 registerEntityTools(server, pool);
-registerSyncTools(server, pool);
+
 registerConversationTools(server, pool);
 registerVersionTools(server, pool);
 registerValidationTools(server, pool);
