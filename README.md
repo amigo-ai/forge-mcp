@@ -103,7 +103,6 @@ The server manages multiple orgs simultaneously. All tools accept an optional `o
 > forge_set_org org_id="acme-staging"        # set session default
 > forge_entity_list entity_type="agent"      # uses "acme-staging"
 > forge_entity_list entity_type="agent" org_id="acme"  # override for one call
-> forge_cross_env_sync entity_type="agent" source_org="acme-staging" dest_org="acme"
 ```
 
 ## Tools
@@ -129,18 +128,6 @@ The server manages multiple orgs simultaneously. All tools accept an optional `o
 
 Supported entity types: `agent`, `context_graph`, `service`, `dynamic_behavior_set`, `tool`, `persona`, `scenario`, `metric`, `unit_test`, `unit_test_set`, `user_dimension`
 
-### Sync (STL/STR)
-
-| Tool | Description |
-|------|-------------|
-| `forge_stl` | Pull entities from remote API to local JSON files |
-| `forge_str` | Push local JSON files to remote API |
-| `forge_cross_env_sync` | Sync entities between two orgs |
-
-All sync operations are **dry-run by default** -- pass `apply=true` to execute.
-
-Local files are stored at `./local/{org_id}/entity_data/{entity_type}/`.
-
 ### Conversation Testing
 
 | Tool | Description |
@@ -163,7 +150,7 @@ Local files are stored at `./local/{org_id}/entity_data/{entity_type}/`.
 
 | Tool | Description |
 |------|-------------|
-| `forge_validate` | Check local entity files for structural issues |
+| `forge_validate` | Check entity data for structural issues |
 | `forge_prompt_lint` | Detect unicode characters that degrade LLM output quality |
 
 ## MCP Resources
@@ -171,7 +158,7 @@ Local files are stored at `./local/{org_id}/entity_data/{entity_type}/`.
 The server exposes resources that give coding agents contextual knowledge:
 
 - `amigo://instructions` -- Agent engineering principles, workflows, and best practices
-- `amigo://dependency-order` -- Entity sync ordering to satisfy references
+- `amigo://dependency-order` -- Entity dependency order to satisfy references
 
 ## Environment Variables
 
@@ -194,18 +181,3 @@ npm run dev         # compile in watch mode
 npm start           # run the server
 ```
 
-## Entity Dependency Order
-
-When syncing entities, follow this order to satisfy references:
-
-1. `agent`
-2. `context_graph`
-3. `service` (requires agent + context_graph)
-4. `tool`
-5. `dynamic_behavior_set` (requires service)
-6. `user_dimension`
-7. `persona`
-8. `scenario`
-9. `metric`
-10. `unit_test`
-11. `unit_test_set`
