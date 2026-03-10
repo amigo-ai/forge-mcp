@@ -15,7 +15,7 @@ import { registerEntityTools } from "./tools/entity-crud.js";
 
 import { registerConversationTools } from "./tools/conversation.js";
 import { registerVersionTools } from "./tools/version-management.js";
-import { registerValidationTools } from "./tools/validation.js";
+
 import { registerResources } from "./resources/instructions.js";
 import { setSessionOrg } from "./tools/shared.js";
 
@@ -73,7 +73,7 @@ registerEntityTools(server, pool);
 
 registerConversationTools(server, pool);
 registerVersionTools(server, pool);
-registerValidationTools(server, pool);
+
 registerResources(server);
 
 // Start stdio transport

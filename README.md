@@ -146,13 +146,6 @@ Supported entity types: `agent`, `context_graph`, `service`, `dynamic_behavior_s
 | `forge_version_set_promote` | Promote one version set to another (e.g. preview -> release) |
 | `forge_version_rollback` | Roll back an entity to a previous version |
 
-### Validation
-
-| Tool | Description |
-|------|-------------|
-| `forge_validate` | Check entity data for structural issues |
-| `forge_prompt_lint` | Detect unicode characters that degrade LLM output quality |
-
 ## MCP Resources
 
 The server exposes resources that give coding agents contextual knowledge:

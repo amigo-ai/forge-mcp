@@ -35,8 +35,6 @@ To deploy a working service, create the three core entities in order:
 1. Use forge_entity_get to fetch entity data
 2. Modify the data as needed
 3. Use forge_entity_update to push changes (creates a new version), or forge_entity_create for new entities
-4. Use forge_prompt_lint to check for unicode issues
-5. Use forge_validate to check for structural issues
 
 ### Testing
 1. Use forge_smoke_test to quickly test a service (single-turn, creates and finishes the conversation)
@@ -361,8 +359,6 @@ Entity data must use ASCII-only characters:
 - Quotes: " and ' (not smart quotes)
 - Arrows: -> (not unicode arrows)
 - Ellipsis: ... (not unicode ellipsis)
-
-Use forge_prompt_lint to check and fix these automatically.
 
 ## Tips and Constraints
 
