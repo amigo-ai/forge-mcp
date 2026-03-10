@@ -21,8 +21,23 @@ function ensureDir(dir: string): void {
   fs.mkdirSync(dir, { recursive: true });
 }
 
+export function assertValidOrgId(orgId: string): void {
+  if (orgId.trim().length === 0) {
+    throw new Error("Org ID cannot be empty.");
+  }
+
+  if (/[\\/]/u.test(orgId)) {
+    throw new Error("Org ID cannot contain path separators.");
+  }
+}
+
+function getCredentialFilePath(orgId: string): string {
+  assertValidOrgId(orgId);
+  return path.join(CREDENTIALS_DIR, `${orgId}.json`);
+}
+
 export function getCredentials(orgId: string): OrgCredentials | null {
-  const file = path.join(CREDENTIALS_DIR, `${orgId}.json`);
+  const file = getCredentialFilePath(orgId);
   if (!fs.existsSync(file)) return null;
   return JSON.parse(fs.readFileSync(file, "utf-8")) as OrgCredentials;
 }
@@ -31,13 +46,13 @@ export function saveCredentials(
   orgId: string,
   creds: OrgCredentials,
 ): void {
+  const file = getCredentialFilePath(orgId);
   ensureDir(CREDENTIALS_DIR);
-  const file = path.join(CREDENTIALS_DIR, `${orgId}.json`);
   fs.writeFileSync(file, JSON.stringify(creds, null, 2), { mode: 0o600 });
 }
 
 export function removeCredentials(orgId: string): boolean {
-  const file = path.join(CREDENTIALS_DIR, `${orgId}.json`);
+  const file = getCredentialFilePath(orgId);
   if (!fs.existsSync(file)) return false;
   fs.unlinkSync(file);
   return true;

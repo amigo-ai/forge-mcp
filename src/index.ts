@@ -4,7 +4,12 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { ClientPool } from "./api/client-pool.js";
 import { DEFAULT_API_BASE_URL } from "./config/constants.js";
-import { saveCredentials, getGlobalConfig, saveGlobalConfig } from "./config/storage.js";
+import {
+  assertValidOrgId,
+  saveCredentials,
+  getGlobalConfig,
+  saveGlobalConfig,
+} from "./config/storage.js";
 import { registerOrgTools } from "./tools/org-management.js";
 import { registerEntityTools } from "./tools/entity-crud.js";
 
@@ -29,6 +34,8 @@ const envUserId = process.env["AMIGO_USER_ID"];
 const envBaseUrl = process.env["AMIGO_API_BASE_URL"];
 
 if (envOrg && envApiKey && envApiKeyId && envUserId) {
+  assertValidOrgId(envOrg);
+
   const creds = {
     api_key: envApiKey,
     api_key_id: envApiKeyId,
@@ -54,6 +61,8 @@ if (envOrg && envApiKey && envApiKeyId && envUserId) {
 
   process.stderr.write(`[forge-mcp] Bootstrapped with org "${envOrg}" from environment variables\n`);
 } else if (envOrg) {
+  assertValidOrgId(envOrg);
+
   // Org specified but missing other creds -- just set session org
   setSessionOrg(envOrg);
 }

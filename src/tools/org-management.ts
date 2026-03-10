@@ -2,6 +2,7 @@ import { z } from "zod";
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import type { ClientPool } from "../api/client-pool.js";
 import {
+  assertValidOrgId,
   getCredentials,
   saveCredentials,
   removeCredentials,
@@ -24,6 +25,7 @@ export function registerOrgTools(server: McpServer, pool: ClientPool): void {
         .describe("Also save as the default org in ~/.amigo/config.json"),
     },
     async ({ org_id, set_as_default }) => {
+      assertValidOrgId(org_id);
       setSessionOrg(org_id);
 
       if (set_as_default) {
@@ -91,6 +93,8 @@ export function registerOrgTools(server: McpServer, pool: ClientPool): void {
         .describe("Set this org as the default"),
     },
     async ({ org_id, api_key, api_key_id, user_id, api_base_url, set_as_default }) => {
+      assertValidOrgId(org_id);
+
       const creds = {
         api_key,
         api_key_id,
@@ -135,6 +139,8 @@ export function registerOrgTools(server: McpServer, pool: ClientPool): void {
       org_id: z.string().describe("The org ID to remove"),
     },
     async ({ org_id }) => {
+      assertValidOrgId(org_id);
+
       const removed = removeCredentials(org_id);
       pool.removeClient(org_id);
 
