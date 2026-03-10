@@ -4,9 +4,71 @@ MCP server that gives coding agents (Claude Code, Codex, Cursor, etc.) full acce
 
 ## Installation
 
-### Via npx (after npm publish)
+Add to your `.mcp.json` (Claude Code, Cursor, etc.):
 
-No install needed -- add directly to your `.mcp.json` (Claude Code, Cursor, etc.):
+**Via npx (after npm publish):**
+
+```json
+{
+  "mcpServers": {
+    "forge": {
+      "command": "npx",
+      "args": ["-y", "@amigo-ai/forge-tools"]
+    }
+  }
+}
+```
+
+**From GitHub:**
+
+```json
+{
+  "mcpServers": {
+    "forge": {
+      "command": "npx",
+      "args": ["-y", "github:amigo-ai/forge-mcp"]
+    }
+  }
+}
+```
+
+**From a local clone:**
+
+```bash
+git clone git@github.com:amigo-ai/forge-mcp.git
+cd forge-mcp
+npm install && npm run build
+```
+
+```json
+{
+  "mcpServers": {
+    "forge": {
+      "command": "node",
+      "args": ["/absolute/path/to/forge-mcp/dist/index.js"]
+    }
+  }
+}
+```
+
+## Credentials
+
+Credentials are managed per-org and stored at `~/.amigo/credentials/{org_id}.json`. There are two ways to set them up:
+
+### Interactive setup (recommended)
+
+Start the server with no env vars. On first use, ask your coding agent to add each org:
+
+```
+> Use forge_add_org to add credentials for org "acme"
+> Use forge_add_org to add credentials for org "acme-staging"
+```
+
+The tool validates credentials by signing in, then persists them for future sessions. You only do this once per org.
+
+### Bootstrap via environment variables
+
+You can bootstrap a single org's credentials via env vars for convenience (e.g., in CI or for initial setup):
 
 ```json
 {
@@ -25,78 +87,24 @@ No install needed -- add directly to your `.mcp.json` (Claude Code, Cursor, etc.
 }
 ```
 
-### From GitHub
-
-Install directly from the repository without waiting for an npm publish:
-
-```json
-{
-  "mcpServers": {
-    "forge": {
-      "command": "npx",
-      "args": ["-y", "github:amigo-ai/forge-mcp"],
-      "env": {
-        "AMIGO_ORG_ID": "your-org",
-        "AMIGO_API_KEY": "your-api-key",
-        "AMIGO_API_KEY_ID": "your-api-key-id",
-        "AMIGO_USER_ID": "your-user-id"
-      }
-    }
-  }
-}
-```
-
-### From a local clone
-
-```bash
-git clone git@github.com:amigo-ai/forge-mcp.git
-cd forge-mcp
-npm install && npm run build
-```
-
-Then point your `.mcp.json` at the built output:
-
-```json
-{
-  "mcpServers": {
-    "forge": {
-      "command": "node",
-      "args": ["/absolute/path/to/forge-mcp/dist/index.js"],
-      "env": {
-        "AMIGO_ORG_ID": "your-org",
-        "AMIGO_API_KEY": "your-api-key",
-        "AMIGO_API_KEY_ID": "your-api-key-id",
-        "AMIGO_USER_ID": "your-user-id"
-      }
-    }
-  }
-}
-```
-
-### Credentials
-
-You can provide credentials in two ways:
-
-1. **Environment variables** (shown above) -- the server authenticates and persists credentials automatically on startup.
-2. **Interactive setup** -- omit the `env` block and ask your coding agent to run `forge_add_org` with your credentials. They'll be validated and saved to `~/.amigo/credentials/{org_id}.json` for future sessions.
+This auto-authenticates and persists the credentials on startup. Additional orgs can then be added via `forge_add_org`.
 
 ## Multi-Org Support
 
-All tools accept an optional `org_id` parameter. When omitted, the org is resolved via this fallback chain:
+The server manages multiple orgs simultaneously. All tools accept an optional `org_id` parameter, resolved via this fallback chain:
 
 1. Explicit `org_id` argument on the tool call
 2. Session org (set via `forge_set_org`)
 3. Default org in `~/.amigo/config.json`
 
-This means you can work across multiple orgs in a single session:
-
 ```
-> forge_set_org org_id="staging"     # set default for this session
-> forge_entity_list entity_type="agent"  # uses "staging"
-> forge_entity_list entity_type="agent" org_id="production"  # override for one call
+> forge_add_org org_id="acme" api_key="..." api_key_id="..." user_id="..."
+> forge_add_org org_id="acme-staging" api_key="..." api_key_id="..." user_id="..."
+> forge_set_org org_id="acme-staging"        # set session default
+> forge_entity_list entity_type="agent"      # uses "acme-staging"
+> forge_entity_list entity_type="agent" org_id="acme"  # override for one call
+> forge_cross_env_sync entity_type="agent" source_org="acme-staging" dest_org="acme"
 ```
-
-Credentials are stored per-org at `~/.amigo/credentials/{org_id}.json`.
 
 ## Tools
 
@@ -167,15 +175,15 @@ The server exposes resources that give coding agents contextual knowledge:
 
 ## Environment Variables
 
-| Variable | Required | Description |
-|----------|----------|-------------|
-| `AMIGO_ORG_ID` | No | Default org ID |
-| `AMIGO_API_KEY` | No | API key (used with org ID for auto-setup) |
-| `AMIGO_API_KEY_ID` | No | API key identifier |
-| `AMIGO_USER_ID` | No | User ID |
-| `AMIGO_API_BASE_URL` | No | API base URL (default: `https://api.amigo.ai`) |
+All optional. Used only to bootstrap a single org on startup -- use `forge_add_org` for additional orgs.
 
-When all four credential variables are set alongside `AMIGO_ORG_ID`, the server automatically authenticates and persists credentials on startup.
+| Variable | Description |
+|----------|-------------|
+| `AMIGO_ORG_ID` | Org to bootstrap and set as session default |
+| `AMIGO_API_KEY` | API key for the bootstrapped org |
+| `AMIGO_API_KEY_ID` | API key identifier |
+| `AMIGO_USER_ID` | User ID |
+| `AMIGO_API_BASE_URL` | API base URL (default: `https://api.amigo.ai`) |
 
 ## Development
 
