@@ -4,6 +4,10 @@
   "description": "MCP server for Amigo Agent Forge - manage AI agents, context graphs, services, and conversations",
   "type": "module",
   "main": "dist/index.js",
+  "files": [
+    "dist",
+    "README.md"
+  ],
   "bin": {
     "forge-mcp": "dist/index.js"
   },
