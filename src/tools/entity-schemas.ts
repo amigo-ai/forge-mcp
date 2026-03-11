@@ -1,7 +1,10 @@
 import { z } from "zod";
 
+// OpenAPI reference: https://api.amigo.ai/v1/openapi.json
+
 // ── Reusable sub-schemas ──
 
+// OpenAPI: RelationshipToDeveloper-Input
 const relationshipToDeveloperSchema = z.object({
   ownership: z.string().describe("Who owns and operates the agent"),
   type: z.string().describe("What kind of AI the agent is and who built it"),
@@ -13,6 +16,7 @@ const relationshipToDeveloperSchema = z.object({
     .describe("Whether internal reasoning is visible to users"),
 });
 
+// OpenAPI: Identity-Input
 const identitySchema = z.object({
   name: z.string().describe("The agent's display name"),
   role: z.string().describe("The agent's role description"),
@@ -25,6 +29,7 @@ const identitySchema = z.object({
   relationship_to_developer: relationshipToDeveloperSchema,
 });
 
+// OpenAPI: VoiceConfig
 const voiceConfigSchema = z
   .object({ voice_id: z.string().describe("Cartesia voice ID") })
   .optional()
@@ -32,6 +37,7 @@ const voiceConfigSchema = z
     "Voice config. Omit to use the default voice on initial version, or to keep existing voice on updates.",
   );
 
+// OpenAPI: ToolCallSpec (used in state machine states)
 const toolCallSpecSchema = z.object({
   tool_id: z.string().describe("24-char hex ID of the tool"),
   version_constraint: z
@@ -59,7 +65,10 @@ const tagsSchema = z
   .describe("Tags (alphanumeric keys and values)");
 
 // ── Context graph state types ──
+// OpenAPI: ActionState-Input, DecisionState-Input, RecallState-Input,
+//          AnnotationState-Input, ReflectionState-Input, ToolCallState-Input
 
+// OpenAPI: ActionState-Input
 const actionStateSchema = z.object({
   type: z.literal("action"),
   name: z.string().describe("Unique state name"),
@@ -74,6 +83,7 @@ const actionStateSchema = z.object({
   skip_active_memory_retrieval: z.boolean(),
 });
 
+// OpenAPI: DecisionState-Input
 const decisionStateSchema = z.object({
   type: z.literal("decision"),
   name: z.string().describe("Unique state name"),
@@ -85,6 +95,7 @@ const decisionStateSchema = z.object({
   audio_filler_triggered_after: z.number().min(0).max(10),
 });
 
+// OpenAPI: RecallState-Input
 const recallStateSchema = z.object({
   type: z.literal("recall"),
   name: z.string().describe("Unique state name"),
@@ -93,6 +104,7 @@ const recallStateSchema = z.object({
   next_state: z.string(),
 });
 
+// OpenAPI: AnnotationState-Input
 const annotationStateSchema = z.object({
   type: z.literal("annotation"),
   name: z.string().describe("Unique state name"),
@@ -100,6 +112,7 @@ const annotationStateSchema = z.object({
   next_state: z.string(),
 });
 
+// OpenAPI: ReflectionState-Input
 const reflectionStateSchema = z.object({
   type: z.literal("reflection"),
   name: z.string().describe("Unique state name"),
@@ -111,6 +124,7 @@ const reflectionStateSchema = z.object({
   audio_filler_triggered_after: z.number().min(0).max(10),
 });
 
+// OpenAPI: ToolCallState-Input
 const toolCallStateSchema = z.object({
   type: z.literal("tool-call"),
   name: z.string().describe("Unique state name"),
@@ -136,6 +150,7 @@ const stateSchema = z.union([
 
 // ── Success criterion (unit tests) ──
 
+// OpenAPI: src__app__endpoints__simulation__create_simulation_unit_test__Request__SuccessCriterion
 const successCriterionSchema = z.object({
   name: z.string().describe("Name of the success criterion"),
   metric_id: z.string().describe("24-char hex ID of the metric"),
@@ -146,6 +161,7 @@ const successCriterionSchema = z.object({
 
 // ── Unit test run descriptor ──
 
+// OpenAPI: UnitTestRunDescriptor-Input
 const unitTestRunDescriptorSchema = z.object({
   unit_test_id: z.string().describe("24-char hex ID of the unit test"),
   run_count: z.number().int().positive().describe("Number of times to run the unit test"),
@@ -160,11 +176,13 @@ export const orgIdParam = z
 
 // ── Agent ──
 
+// OpenAPI: src__app__endpoints__organization__create_agent__Request
 export const agentCreateParams = {
   agent_name: z.string().describe("Name for the agent"),
   org_id: orgIdParam,
 };
 
+// OpenAPI: src__app__endpoints__organization__create_agent_version__Request
 export const agentUpdateParams = {
   agent_id: z.string().describe("The agent ID to update"),
   initials: z
@@ -194,11 +212,13 @@ export const agentUpdateParams = {
 
 // ── Context Graph ──
 
+// OpenAPI: src__app__endpoints__organization__create_service_hierarchical_state_machine__Request
 export const contextGraphCreateParams = {
   state_machine_name: z.string().describe("Name for the context graph"),
   org_id: orgIdParam,
 };
 
+// OpenAPI: src__app__endpoints__organization__create_service_hierarchical_state_machine_version__Request
 export const contextGraphUpdateParams = {
   context_graph_id: z.string().describe("The context graph ID to update"),
   description: z.string().describe("Description of the conversation flow"),
@@ -232,6 +252,7 @@ export const contextGraphUpdateParams = {
 
 // ── Service ──
 
+// OpenAPI: src__app__endpoints__service__create_service__Request
 export const serviceCreateParams = {
   agent_id: z.string().describe("ID of the agent to link"),
   service_hierarchical_state_machine_id: z
@@ -245,6 +266,7 @@ export const serviceCreateParams = {
   org_id: orgIdParam,
 };
 
+// OpenAPI: src__app__endpoints__service__update_service__Request
 export const serviceUpdateParams = {
   service_id: z.string().describe("The service ID to update"),
   name: z.string().optional().describe("Service name"),
@@ -262,6 +284,7 @@ export const serviceUpdateParams = {
 
 // ── Tool ──
 
+// OpenAPI: src__app__endpoints__tool__create_tool__Request
 export const toolCreateParams = {
   name: z.string().describe("Unique tool name (lowercase, alphanumeric, underscores)"),
   description: z.string().describe("Description of the tool"),
@@ -269,6 +292,7 @@ export const toolCreateParams = {
   org_id: orgIdParam,
 };
 
+// OpenAPI: src__app__endpoints__tool__modify_tool__Request
 export const toolUpdateParams = {
   tool_id: z.string().describe("The tool ID to update"),
   description: z.string().optional().describe("Updated description"),
@@ -278,6 +302,7 @@ export const toolUpdateParams = {
 
 // ── Metric ──
 
+// OpenAPI: src__app__endpoints__metric__create_metric__Request
 export const metricCreateParams = {
   name: z.string().describe("Unique metric name within the organization"),
   description: z.string().describe("Description of the metric"),
@@ -297,6 +322,7 @@ export const metricCreateParams = {
   org_id: orgIdParam,
 };
 
+// OpenAPI: src__app__endpoints__metric__update_metric__Request
 export const metricUpdateParams = {
   metric_id: z.string().describe("The metric ID to update"),
   description: z.string().optional().describe("Updated description"),
@@ -315,6 +341,7 @@ export const metricUpdateParams = {
 
 // ── Persona ──
 
+// OpenAPI: src__app__endpoints__simulation__create_simulation_persona__Request__InitialVersion
 const personaInitialVersionSchema = z.object({
   background: z.string().describe("Background of the simulation persona"),
   user_models: z
@@ -337,6 +364,7 @@ const personaInitialVersionSchema = z.object({
     .describe("Timezone in IANA tz database format"),
 });
 
+// OpenAPI: src__app__endpoints__simulation__create_simulation_persona__Request
 export const personaCreateParams = {
   name: z.string().describe("Name for the simulation persona"),
   role: z.string().describe("Role of the simulation persona"),
@@ -347,6 +375,7 @@ export const personaCreateParams = {
   org_id: orgIdParam,
 };
 
+// OpenAPI: src__app__endpoints__simulation__update_simulation_persona__Request
 export const personaUpdateParams = {
   persona_id: z.string().describe("The persona ID to update"),
   tags: tagsSchema.optional(),
@@ -355,6 +384,7 @@ export const personaUpdateParams = {
 
 // ── Scenario ──
 
+// OpenAPI: src__app__endpoints__simulation__create_simulation_scenario__Request__InitialVersion
 const scenarioInitialVersionSchema = z.object({
   objective: z.string().describe("Objective of the simulation scenario"),
   instructions: z.string().describe("Instructions for the simulation"),
@@ -367,6 +397,7 @@ const scenarioInitialVersionSchema = z.object({
     .describe("UTC timestamp for when the conversation starts, or null"),
 });
 
+// OpenAPI: src__app__endpoints__simulation__create_simulation_scenario__Request
 export const scenarioCreateParams = {
   name: z.string().describe("Name for the simulation scenario"),
   tags: tagsSchema,
@@ -376,6 +407,7 @@ export const scenarioCreateParams = {
   org_id: orgIdParam,
 };
 
+// OpenAPI: src__app__endpoints__simulation__update_simulation_scenario__Request
 export const scenarioUpdateParams = {
   scenario_id: z.string().describe("The scenario ID to update"),
   tags: tagsSchema.optional(),
@@ -384,6 +416,7 @@ export const scenarioUpdateParams = {
 
 // ── Dynamic Behavior Set ──
 
+// OpenAPI: src__app__endpoints__dynamic_behavior_set__create_dynamic_behavior_set__Request__InitialVersion
 const dbsInitialVersionSchema = z.object({
   is_active: z
     .boolean()
@@ -398,6 +431,7 @@ const dbsInitialVersionSchema = z.object({
     ),
 });
 
+// OpenAPI: src__app__endpoints__dynamic_behavior_set__create_dynamic_behavior_set__Request
 export const dynamicBehaviorSetCreateParams = {
   name: z.string().describe("Name for the dynamic behavior set"),
   tags: tagsSchema,
@@ -410,6 +444,7 @@ export const dynamicBehaviorSetCreateParams = {
   org_id: orgIdParam,
 };
 
+// OpenAPI: src__app__endpoints__dynamic_behavior_set__update_dynamic_behavior_set__Request
 export const dynamicBehaviorSetUpdateParams = {
   dynamic_behavior_set_id: z
     .string()
@@ -426,6 +461,7 @@ export const dynamicBehaviorSetUpdateParams = {
 
 // ── Unit Test ──
 
+// OpenAPI: src__app__endpoints__simulation__create_simulation_unit_test__Request
 export const unitTestCreateParams = {
   name: z.string().describe("Name for the unit test"),
   description: z.string().describe("Description of the unit test"),
@@ -447,6 +483,7 @@ export const unitTestCreateParams = {
   org_id: orgIdParam,
 };
 
+// OpenAPI: src__app__endpoints__simulation__update_simulation_unit_test__Request
 export const unitTestUpdateParams = {
   unit_test_id: z.string().describe("The unit test ID to update"),
   description: z.string().optional().describe("Updated description"),
@@ -479,6 +516,7 @@ export const unitTestUpdateParams = {
 
 // ── Unit Test Set ──
 
+// OpenAPI: src__app__endpoints__simulation__create_simulation_unit_test_set__Request
 export const unitTestSetCreateParams = {
   name: z.string().describe("Name for the unit test set"),
   description: z
@@ -492,6 +530,7 @@ export const unitTestSetCreateParams = {
   org_id: orgIdParam,
 };
 
+// OpenAPI: src__app__endpoints__simulation__update_simulation_unit_test_set__Request
 export const unitTestSetUpdateParams = {
   unit_test_set_id: z.string().describe("The unit test set ID to update"),
   name: z.string().optional().describe("Updated name"),
