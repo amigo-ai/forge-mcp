@@ -149,7 +149,8 @@ export function registerEntityTools(server: McpServer, pool: ClientPool): void {
           queryParams: { id: entity_id, limit: "1" },
         });
         const items = resp[listKey] as unknown[] | undefined;
-        if (!items || items.length === 0) {
+        const agent = items?.[0] as Record<string, unknown> | undefined;
+        if (!agent || agent.latest_version == null) {
           body.voice_config = { ...DEFAULT_AGENT_VOICE_CONFIG };
         }
       }

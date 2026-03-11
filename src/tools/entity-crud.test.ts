@@ -41,7 +41,7 @@ test("forge_entity_update preserves existing agent voice when voice_config is om
 
     if (path === "organization/agent" && options?.queryParams) {
       return {
-        agents: [{ id: "agent-123", version: 2, voice_config: { voice_id: "custom-voice" } }],
+        agents: [{ id: "agent-123", latest_version: 2, voice_config: { voice_id: "custom-voice" } }],
       };
     }
 
@@ -79,7 +79,7 @@ test("forge_entity_update applies the default voice only for the initial agent v
     requests.push({ path, options });
 
     if (path === "organization/agent" && options?.queryParams) {
-      return { agents: [] };
+      return { agents: [{ id: "agent-123", latest_version: null }] };
     }
 
     if (path === "organization/agent/agent-123/") {
