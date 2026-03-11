@@ -137,6 +137,11 @@ export function registerEntityTools(server: McpServer, pool: ClientPool): void {
       const idPath = ENTITY_ID_PATHS[entity_type as EntityType];
       const body = typeof data === "string" ? JSON.parse(data) : data;
 
+      // Ensure agent version data always includes voice_config (required by API for initial version)
+      if (entity_type === "agent" && !body.voice_config) {
+        body.voice_config = { voice_id: "e07c00bc-4134-4eae-9ea4-1a55fb45746b" };
+      }
+
       const result = await client.request(`${idPath}/${entity_id}/`, {
         method: "POST",
         body,

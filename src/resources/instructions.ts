@@ -61,7 +61,9 @@ forge_entity_create with entity_type: "agent":
 \`\`\`
 
 ### Agent Version (forge_entity_update with entity_type: "agent")
-The initial version must include ALL fields. Subsequent versions can omit fields to leave them unchanged.
+The initial version must include ALL of these fields and ONLY these fields. Do NOT include agent_name, greeting, dynamic_behavior_set_ids, user_dimension_ids, persona_ids, or any other fields not shown below. Subsequent versions can omit fields to leave them unchanged.
+
+Required fields: initials, identity, background, behaviors, communication_patterns, voice_config
 \`\`\`json
 {
   "initials": "MA",
@@ -88,7 +90,7 @@ The initial version must include ALL fields. Subsequent versions can omit fields
     "Keep responses concise -- one question OR one statement per message, never both",
     "Mirror the user's level of urgency"
   ],
-  "voice_config": null
+  "voice_config": { "voice_id": "<cartesia_voice_id>" }
 }
 \`\`\`
 
@@ -104,7 +106,7 @@ The initial version must include ALL fields. Subsequent versions can omit fields
   - thought_visibility: Whether internal reasoning is visible to users
 
 #### voice_config
-Set to null for text-only agents. For voice agents, provide: { "voice_id": "<cartesia_voice_id>" }
+Required. Provide: { "voice_id": "<cartesia_voice_id>" }. If omitted, a default voice will be used.
 
 ### Context Graph Creation
 forge_entity_create with entity_type: "context_graph":
@@ -368,7 +370,8 @@ Entity data must use ASCII-only characters:
 - Service creation requires \`agent_id\` and \`service_hierarchical_state_machine_id\`
 
 ### Entity Updates
-- The initial version of an agent must include ALL fields (initials, identity, background, behaviors, communication_patterns, voice_config)
+- The initial version of an agent must include ALL of and ONLY these fields: initials, identity, background, behaviors, communication_patterns, voice_config
+- Do NOT include agent_name, greeting, dynamic_behavior_set_ids, user_dimension_ids, or persona_ids in the version data -- these are not version fields
 - Subsequent versions can include only changed fields
 
 ### Version Sets
