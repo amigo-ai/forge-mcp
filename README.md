@@ -164,6 +164,7 @@ All optional. Used only to bootstrap a single org on startup -- use `forge_add_o
 | `AMIGO_API_KEY_ID` | API key identifier |
 | `AMIGO_USER_ID` | User ID |
 | `AMIGO_API_BASE_URL` | API base URL (default: `https://api.amigo.ai`) |
+| `FORGE_LOG_LEVEL` | Log verbosity: `debug`, `info` (default), `warn`, `error` |
 
 ## Development
 

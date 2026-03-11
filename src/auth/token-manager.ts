@@ -2,7 +2,10 @@ import {
   AMIGO_APP_HEADER_NAME,
   AMIGO_APP_HEADER_VALUE,
 } from "../config/constants.js";
+import { createLogger } from "../config/logger.js";
 import type { OrgCredentials } from "../config/storage.js";
+
+const log = createLogger("auth");
 
 interface TokenCache {
   token: string;
@@ -22,9 +25,11 @@ export class TokenManager {
     const now = Date.now() / 1000;
 
     if (cached && cached.expiresAt > now + TOKEN_BUFFER_SECONDS) {
+      log.debug("Using cached token", { orgId, expiresIn: Math.round(cached.expiresAt - now) });
       return cached.token;
     }
 
+    log.info("Refreshing token", { orgId, reason: cached ? "expired" : "no_cache" });
     return this.refreshToken(orgId, creds);
   }
 
@@ -47,6 +52,7 @@ export class TokenManager {
 
     if (!resp.ok) {
       const body = await resp.text();
+      log.error("Authentication failed", { orgId, status: resp.status });
       throw new Error(
         `Authentication failed for org "${orgId}" (${resp.status}): ${body}`,
       );
@@ -61,11 +67,13 @@ export class TokenManager {
       new Date(data.expires_at.replace("Z", "+00:00")).getTime() / 1000;
 
     this.cache.set(orgId, { token: data.id_token, expiresAt });
+    log.info("Token refreshed", { orgId, expiresAt: data.expires_at });
 
     return data.id_token;
   }
 
   invalidate(orgId: string): void {
+    log.info("Token invalidated", { orgId });
     this.cache.delete(orgId);
   }
 }

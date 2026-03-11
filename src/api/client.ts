@@ -2,8 +2,11 @@ import {
   AMIGO_APP_HEADER_NAME,
   AMIGO_APP_HEADER_VALUE,
 } from "../config/constants.js";
+import { createLogger } from "../config/logger.js";
 import type { OrgCredentials } from "../config/storage.js";
 import { TokenManager } from "../auth/token-manager.js";
+
+const log = createLogger("api");
 
 export interface RequestOptions {
   method?: string;
@@ -94,6 +97,7 @@ export class AmigoClient {
     for (let attempt = 0; attempt <= this.retryConfig.maxAttempts; attempt++) {
       if (attempt > 0) {
         const delay = this.computeDelay(attempt);
+        log.warn("Retrying request", { method, path: apiPath, attempt, delay: `${delay.toFixed(1)}s` });
         await new Promise((r) => setTimeout(r, delay * 1000));
       }
 
@@ -110,12 +114,15 @@ export class AmigoClient {
             lastError = new Error(
               `HTTP ${resp.status}: ${await resp.text()}`,
             );
+            log.warn("Retryable HTTP error", { method, path: apiPath, status: resp.status, attempt });
             continue;
           }
           const errorBody = await resp.text();
+          log.error("HTTP error", { method, path: apiPath, status: resp.status });
           throw new Error(`HTTP ${resp.status}: ${errorBody}`);
         }
 
+        log.debug("Request succeeded", { method, path: apiPath, status: resp.status });
         const text = await resp.text();
         if (!text) return {} as T;
         return JSON.parse(text) as T;
@@ -124,6 +131,7 @@ export class AmigoClient {
           err instanceof Error &&
           (err.name === "AbortError" || err.name === "TimeoutError")
         ) {
+          log.warn("Request timeout", { method, path: apiPath, attempt, timeout });
           lastError = err;
           continue;
         }
@@ -131,6 +139,7 @@ export class AmigoClient {
       }
     }
 
+    log.error("Request failed after all retries", { method, path: apiPath, attempts: this.retryConfig.maxAttempts + 1 });
     throw lastError ?? new Error("Request failed after retries");
   }
 
@@ -155,6 +164,7 @@ export class AmigoClient {
       fetchBody = JSON.stringify(body);
     }
 
+    log.debug("Starting stream request", { method, path: apiPath });
     const resp = await fetch(url, {
       method,
       headers,
@@ -164,10 +174,12 @@ export class AmigoClient {
 
     if (!resp.ok) {
       const errorBody = await resp.text();
+      log.error("Stream request failed", { method, path: apiPath, status: resp.status });
       throw new Error(`HTTP ${resp.status}: ${errorBody}`);
     }
 
     if (!resp.body) {
+      log.error("No response body for stream", { method, path: apiPath });
       throw new Error("No response body for stream");
     }
 
@@ -201,8 +213,10 @@ export class AmigoClient {
   ): Promise<T[]> {
     const items: T[] = [];
     let continuationToken: number | undefined;
+    let page = 0;
 
     do {
+      page++;
       const params: Record<string, string | string[]> = {
         ...queryParams,
         limit: String(limit),
@@ -223,6 +237,7 @@ export class AmigoClient {
       if (!hasMore) break;
     } while (continuationToken !== undefined);
 
+    log.debug("Pagination complete", { path: apiPath, pages: page, totalItems: items.length });
     return items;
   }
 }

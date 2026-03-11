@@ -17,7 +17,10 @@ import { registerConversationTools } from "./tools/conversation.js";
 import { registerVersionTools } from "./tools/version-management.js";
 
 import { registerResources } from "./resources/instructions.js";
+import { createLogger } from "./config/logger.js";
 import { setSessionOrg } from "./tools/shared.js";
+
+const log = createLogger("server");
 
 const server = new McpServer({
   name: "forge-tools",
@@ -59,7 +62,7 @@ if (envOrg && envApiKey && envApiKeyId && envUserId) {
     saveGlobalConfig(config);
   }
 
-  process.stderr.write(`[forge-mcp] Bootstrapped with org "${envOrg}" from environment variables\n`);
+  log.info("Bootstrapped from environment variables", { orgId: envOrg });
 } else if (envOrg) {
   assertValidOrgId(envOrg);
 
@@ -80,4 +83,4 @@ registerResources(server);
 const transport = new StdioServerTransport();
 await server.connect(transport);
 
-process.stderr.write("[forge-mcp] Server started on stdio\n");
+log.info("Server started on stdio");

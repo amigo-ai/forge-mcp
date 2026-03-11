@@ -1,9 +1,12 @@
 import { AmigoClient } from "./client.js";
 import { TokenManager } from "../auth/token-manager.js";
+import { createLogger } from "../config/logger.js";
 import {
   getCredentials,
   type OrgCredentials,
 } from "../config/storage.js";
+
+const log = createLogger("pool");
 
 /**
  * Manages one AmigoClient per org_id. Lazily initializes clients
@@ -19,6 +22,7 @@ export class ClientPool {
 
     const creds = getCredentials(orgId);
     if (!creds) {
+      log.error("No credentials found", { orgId });
       throw new Error(
         `No credentials found for org "${orgId}". ` +
           `Use the forge_add_org tool to configure credentials, or set ` +
@@ -26,6 +30,7 @@ export class ClientPool {
       );
     }
 
+    log.info("Client initialized", { orgId });
     const client = new AmigoClient(orgId, creds, this.tokenManager);
     this.clients.set(orgId, client);
     return client;
@@ -33,6 +38,7 @@ export class ClientPool {
 
   /** Register credentials directly (e.g. from env vars) without persisting. */
   registerClient(orgId: string, creds: OrgCredentials): AmigoClient {
+    log.info("Client registered", { orgId, baseUrl: creds.api_base_url });
     this.tokenManager.invalidate(orgId);
     const client = new AmigoClient(orgId, creds, this.tokenManager);
     this.clients.set(orgId, client);
@@ -40,6 +46,7 @@ export class ClientPool {
   }
 
   removeClient(orgId: string): void {
+    log.info("Client removed", { orgId });
     this.clients.delete(orgId);
     this.tokenManager.invalidate(orgId);
   }

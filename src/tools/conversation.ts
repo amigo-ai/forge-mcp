@@ -1,7 +1,10 @@
 import { z } from "zod";
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import type { ClientPool } from "../api/client-pool.js";
+import { createLogger } from "../config/logger.js";
 import { getClientForOrg, textResult, jsonResult } from "./shared.js";
+
+const log = createLogger("conversation");
 
 export function registerConversationTools(
   server: McpServer,
@@ -24,6 +27,7 @@ export function registerConversationTools(
     },
     async ({ service_name, message, version_set, org_id }) => {
       const { orgId, client } = getClientForOrg(pool, org_id);
+      log.info("Smoke test started", { service: service_name, orgId });
 
       // Find service by name
       const services = await client.paginate<Record<string, unknown>>(
@@ -37,6 +41,7 @@ export function registerConversationTools(
       );
 
       if (!service) {
+        log.warn("Service not found", { service: service_name, orgId });
         return textResult(
           `Service "${service_name}" not found in org "${orgId}".`,
         );
@@ -87,12 +92,13 @@ export function registerConversationTools(
             method: "POST",
             body: {},
           });
-        } catch {
-          // Best effort cleanup
+        } catch (err) {
+          log.warn("Conversation cleanup failed", { conversationId, error: err instanceof Error ? err.message : String(err) });
         }
       }
 
       const agentResponse = agentMessages.join("");
+      log.info("Smoke test completed", { service: service_name, conversationId });
 
       return textResult(
         [
@@ -128,6 +134,7 @@ export function registerConversationTools(
     async ({ service_name, max_turns, initial_message, version_set, org_id }) => {
       const { orgId, client } = getClientForOrg(pool, org_id);
       const maxTurns = max_turns ?? 10;
+      log.info("Simulation started", { service: service_name, orgId, maxTurns });
 
       // Find service
       const services = await client.paginate<Record<string, unknown>>(
@@ -141,6 +148,7 @@ export function registerConversationTools(
       );
 
       if (!service) {
+        log.warn("Service not found", { service: service_name, orgId });
         return textResult(`Service "${service_name}" not found in org "${orgId}".`);
       }
 
@@ -249,6 +257,7 @@ export function registerConversationTools(
             transcript.push(`Agent: ${agentMsg.join("")}`);
           }
         } catch (err) {
+          log.error("Simulation turn failed", { turn, conversationId, error: err instanceof Error ? err.message : String(err) });
           transcript.push(
             `[Error on turn ${turn}: ${err instanceof Error ? err.message : String(err)}]`,
           );
@@ -263,10 +272,12 @@ export function registerConversationTools(
             method: "POST",
             body: {},
           });
-        } catch {
-          // best effort
+        } catch (err) {
+          log.warn("Conversation cleanup failed", { conversationId, error: err instanceof Error ? err.message : String(err) });
         }
       }
+
+      log.info("Simulation completed", { service: service_name, conversationId, turns: Math.ceil(transcript.length / 2), completed: conversationCompleted });
 
       return textResult(
         [
