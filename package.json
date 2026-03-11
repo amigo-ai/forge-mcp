@@ -1,6 +1,6 @@
 {
   "name": "@amigo-ai/forge-tools",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "MCP server for Amigo Agent Forge - manage AI agents, context graphs, services, and conversations",
   "type": "module",
   "main": "dist/index.js",
