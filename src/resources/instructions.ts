@@ -25,16 +25,16 @@ You have access to the Amigo Agent Forge platform via MCP tools. Use these tools
 ### Creating a Service from Scratch
 To deploy a working service, create the three core entities in order:
 
-1. **Create the agent** with forge_entity_create (entity_type: "agent", data: { agent_name: "My Agent" })
-2. **Create the first agent version** with forge_entity_update using the returned agent ID (see Agent Version Schema below)
-3. **Create the context graph** with forge_entity_create (entity_type: "context_graph", data: { state_machine_name: "My Flow" })
-4. **Create the first context graph version** with forge_entity_update using the returned context graph ID (see Context Graph Version Schema below)
-5. **Create the service** with forge_entity_create (entity_type: "service") linking the agent and context graph IDs (see Service Schema below)
+1. **Create the agent** with forge_agent_create (agent_name: "My Agent")
+2. **Create the first agent version** with forge_agent_update using the returned agent ID (see Agent Version Schema below)
+3. **Create the context graph** with forge_context_graph_create (state_machine_name: "My Flow")
+4. **Create the first context graph version** with forge_context_graph_update using the returned context graph ID (see Context Graph Version Schema below)
+5. **Create the service** with forge_service_create linking the agent and context graph IDs (see Service Schema below)
 
 ### Making Changes
 1. Use forge_entity_get to fetch entity data
 2. Modify the data as needed
-3. Use forge_entity_update to push changes (creates a new version), or forge_entity_create for new entities
+3. Use the entity-specific update tool (e.g. forge_agent_update) to push changes (creates a new version)
 
 ### Testing
 1. Use forge_smoke_test to quickly test a service (single-turn, creates and finishes the conversation)
@@ -55,12 +55,9 @@ To deploy a working service, create the three core entities in order:
 ## Entity Schemas
 
 ### Agent Creation
-forge_entity_create with entity_type: "agent":
-\`\`\`json
-{ "agent_name": "My Agent Name" }
-\`\`\`
+forge_agent_create with agent_name: "My Agent Name"
 
-### Agent Version (forge_entity_update with entity_type: "agent")
+### Agent Version (forge_agent_update)
 The initial version must include these fields and ONLY these fields. Do NOT include agent_name, greeting, dynamic_behavior_set_ids, user_dimension_ids, persona_ids, or any other fields not shown below. Subsequent versions can omit fields to leave them unchanged.
 
 Required fields: initials, identity, background, behaviors, communication_patterns
@@ -111,12 +108,9 @@ If you do not know a valid voice ID, omit voice_config and the MCP will apply th
 On later agent updates, omit voice_config to leave the existing voice unchanged.
 
 ### Context Graph Creation
-forge_entity_create with entity_type: "context_graph":
-\`\`\`json
-{ "state_machine_name": "My Flow" }
-\`\`\`
+forge_context_graph_create with state_machine_name: "My Flow"
 
-### Context Graph Version (forge_entity_update with entity_type: "context_graph")
+### Context Graph Version (forge_context_graph_update)
 All fields are required.
 \`\`\`json
 {
@@ -320,7 +314,7 @@ Each exit condition has:
 - description: When this transition should fire
 - next_state: Name of the target state (must be a state in this graph or a reference)
 
-### Service Creation (forge_entity_create with entity_type: "service")
+### Service Creation (forge_service_create)
 All fields are required.
 \`\`\`json
 {
@@ -367,14 +361,13 @@ Entity data must use ASCII-only characters:
 ## Tips and Constraints
 
 ### Entity Creation
-- Agent creation requires \`agent_name\` (not \`name\`) in the data payload
-- Context graph creation requires \`state_machine_name\` (not \`name\`)
-- Service creation requires \`agent_id\` and \`service_hierarchical_state_machine_id\`
+- Use the entity-specific create tools: forge_agent_create, forge_context_graph_create, forge_service_create, etc.
+- Each tool has a strongly-typed schema -- follow the parameter names exactly
 
 ### Entity Updates
+- Use the entity-specific update tools: forge_agent_update, forge_context_graph_update, forge_service_update, etc.
 - The initial version of an agent must include initials, identity, background, behaviors, and communication_patterns
 - Include voice_config only when you already have a valid Cartesia voice_id; otherwise omit it and the MCP will use the built-in default for the initial version
-- Do NOT include agent_name, greeting, dynamic_behavior_set_ids, user_dimension_ids, or persona_ids in the version data -- these are not version fields
 - Subsequent versions can include only changed fields; omit voice_config to keep the existing voice
 
 ### Version Sets
