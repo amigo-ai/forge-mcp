@@ -17,6 +17,9 @@ const entityTypeSchema = z
 
 /** Entity types that do NOT support pagination. */
 const NON_PAGINATED_TYPES = new Set<EntityType>(["user_dimension"]);
+const DEFAULT_AGENT_VOICE_CONFIG = {
+  voice_id: "e07c00bc-4134-4eae-9ea4-1a55fb45746b",
+};
 
 export function registerEntityTools(server: McpServer, pool: ClientPool): void {
   server.tool(
@@ -134,12 +137,21 @@ export function registerEntityTools(server: McpServer, pool: ClientPool): void {
     async ({ entity_type, entity_id, data, org_id }) => {
       assertValidEntityId(entity_id);
       const { client } = getClientForOrg(pool, org_id);
+      const et = entity_type as EntityType;
+      const apiPath = ENTITY_API_PATHS[et];
+      const listKey = ENTITY_LIST_KEYS[et];
       const idPath = ENTITY_ID_PATHS[entity_type as EntityType];
-      const body = typeof data === "string" ? JSON.parse(data) : data;
+      const body = (typeof data === "string" ? JSON.parse(data) : data) as Record<string, unknown>;
 
-      // Ensure agent version data always includes voice_config (required by API for initial version)
-      if (entity_type === "agent" && !body.voice_config) {
-        body.voice_config = { voice_id: "e07c00bc-4134-4eae-9ea4-1a55fb45746b" };
+      // Only apply the built-in default voice for the very first agent version.
+      if (entity_type === "agent" && body.voice_config === undefined) {
+        const resp = await client.request<Record<string, unknown>>(apiPath, {
+          queryParams: { id: entity_id, limit: "1" },
+        });
+        const items = resp[listKey] as unknown[] | undefined;
+        if (!items || items.length === 0) {
+          body.voice_config = { ...DEFAULT_AGENT_VOICE_CONFIG };
+        }
       }
 
       const result = await client.request(`${idPath}/${entity_id}/`, {

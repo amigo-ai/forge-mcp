@@ -61,9 +61,10 @@ forge_entity_create with entity_type: "agent":
 \`\`\`
 
 ### Agent Version (forge_entity_update with entity_type: "agent")
-The initial version must include ALL of these fields and ONLY these fields. Do NOT include agent_name, greeting, dynamic_behavior_set_ids, user_dimension_ids, persona_ids, or any other fields not shown below. Subsequent versions can omit fields to leave them unchanged.
+The initial version must include these fields and ONLY these fields. Do NOT include agent_name, greeting, dynamic_behavior_set_ids, user_dimension_ids, persona_ids, or any other fields not shown below. Subsequent versions can omit fields to leave them unchanged.
 
-Required fields: initials, identity, background, behaviors, communication_patterns, voice_config
+Required fields: initials, identity, background, behaviors, communication_patterns
+Optional field: voice_config
 \`\`\`json
 {
   "initials": "MA",
@@ -89,8 +90,7 @@ Required fields: initials, identity, background, behaviors, communication_patter
     "Use clear, jargon-free language unless the user demonstrates technical fluency",
     "Keep responses concise -- one question OR one statement per message, never both",
     "Mirror the user's level of urgency"
-  ],
-  "voice_config": { "voice_id": "<cartesia_voice_id>" }
+  ]
 }
 \`\`\`
 
@@ -106,7 +106,9 @@ Required fields: initials, identity, background, behaviors, communication_patter
   - thought_visibility: Whether internal reasoning is visible to users
 
 #### voice_config
-Required. Provide: { "voice_id": "<cartesia_voice_id>" }. If omitted, a default voice will be used.
+Optional in MCP requests. If you already know a valid Cartesia voice ID, provide: { "voice_id": "<cartesia_voice_id>" }.
+If you do not know a valid voice ID, omit voice_config and the MCP will apply the built-in default voice for the initial agent version.
+On later agent updates, omit voice_config to leave the existing voice unchanged.
 
 ### Context Graph Creation
 forge_entity_create with entity_type: "context_graph":
@@ -370,9 +372,10 @@ Entity data must use ASCII-only characters:
 - Service creation requires \`agent_id\` and \`service_hierarchical_state_machine_id\`
 
 ### Entity Updates
-- The initial version of an agent must include ALL of and ONLY these fields: initials, identity, background, behaviors, communication_patterns, voice_config
+- The initial version of an agent must include initials, identity, background, behaviors, and communication_patterns
+- Include voice_config only when you already have a valid Cartesia voice_id; otherwise omit it and the MCP will use the built-in default for the initial version
 - Do NOT include agent_name, greeting, dynamic_behavior_set_ids, user_dimension_ids, or persona_ids in the version data -- these are not version fields
-- Subsequent versions can include only changed fields
+- Subsequent versions can include only changed fields; omit voice_config to keep the existing voice
 
 ### Version Sets
 - The "edge" version set is read-only and always tracks the latest versions automatically -- it cannot be updated via forge_version_set_upsert
