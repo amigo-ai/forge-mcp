@@ -54,6 +54,10 @@ const exitConditionSchema = z.object({
   next_state: z.string().describe("Name of the target state"),
 });
 
+const tagsSchema = z
+  .record(z.string(), z.unknown())
+  .describe("Tags (alphanumeric keys and values)");
+
 // ── Context graph state types ──
 
 const actionStateSchema = z.object({
@@ -130,6 +134,23 @@ const stateSchema = z.union([
   toolCallStateSchema,
 ]);
 
+// ── Success criterion (unit tests) ──
+
+const successCriterionSchema = z.object({
+  name: z.string().describe("Name of the success criterion"),
+  metric_id: z.string().describe("24-char hex ID of the metric"),
+  criterion: z
+    .record(z.string(), z.unknown())
+    .describe("Criterion description (boolean, numerical, or categorical)"),
+});
+
+// ── Unit test run descriptor ──
+
+const unitTestRunDescriptorSchema = z.object({
+  unit_test_id: z.string().describe("24-char hex ID of the unit test"),
+  run_count: z.number().int().positive().describe("Number of times to run the unit test"),
+});
+
 // ── Org ID (reused by every tool) ──
 
 export const orgIdParam = z
@@ -180,38 +201,31 @@ export const contextGraphCreateParams = {
 
 export const contextGraphUpdateParams = {
   context_graph_id: z.string().describe("The context graph ID to update"),
-  description: z.string().optional().describe("Description of the conversation flow"),
+  description: z.string().describe("Description of the conversation flow"),
   new_user_initial_state: z
     .string()
-    .optional()
-    .describe("State name for new users"),
+    .describe("State name for new users (must be an action state)"),
   returning_user_initial_state: z
     .string()
-    .optional()
-    .describe("State name for returning users"),
+    .describe("State name for returning users (must be an action state)"),
   terminal_state: z
     .string()
-    .optional()
     .describe("Name of the terminal state (must have exactly one action)"),
   references: z
     .record(z.string(), z.unknown())
     .default({})
-    .describe("Named references for reuse across states"),
+    .describe("References to other state machines: { ref_name: [machine_id, version] }"),
   global_intra_state_navigation_guidelines: z
     .array(z.string())
-    .optional()
     .describe("Navigation guidelines applied to all states"),
   global_action_guidelines: z
     .array(z.string())
-    .optional()
     .describe("Action guidelines applied to all states"),
   global_boundary_constraints: z
     .array(z.string())
-    .optional()
     .describe("Boundary constraints applied to all states"),
   states: z
     .array(stateSchema)
-    .optional()
     .describe("Array of state definitions (action, decision, recall, annotation, reflection, or tool-call)"),
   org_id: orgIdParam,
 };
@@ -226,109 +240,173 @@ export const serviceCreateParams = {
   name: z.string().describe("Service name"),
   description: z.string().describe("Brief description of what this service does"),
   is_active: z.boolean().describe("Whether the service is active"),
-  keyterms: z.array(z.string()).describe("Keywords for discovery"),
-  tags: z.record(z.string(), z.unknown()).describe("Metadata tags"),
+  keyterms: z.array(z.string()).describe("Keywords for audio transcription correction"),
+  tags: tagsSchema,
   org_id: orgIdParam,
 };
 
 export const serviceUpdateParams = {
   service_id: z.string().describe("The service ID to update"),
+  name: z.string().optional().describe("Service name"),
+  description: z.string().optional().describe("Brief description"),
+  is_active: z.boolean().optional().describe("Whether the service is active"),
   agent_id: z.string().optional().describe("ID of the agent to link"),
   service_hierarchical_state_machine_id: z
     .string()
     .optional()
     .describe("ID of the context graph to link"),
-  name: z.string().optional().describe("Service name"),
-  description: z.string().optional().describe("Brief description"),
-  is_active: z.boolean().optional().describe("Whether the service is active"),
-  keyterms: z.array(z.string()).optional().describe("Keywords for discovery"),
-  tags: z.record(z.string(), z.unknown()).optional().describe("Metadata tags"),
+  tags: tagsSchema.optional(),
+  keyterms: z.array(z.string()).optional().describe("Keywords for audio transcription correction"),
   org_id: orgIdParam,
 };
 
 // ── Tool ──
 
 export const toolCreateParams = {
-  tool_name: z.string().describe("Name for the tool"),
-  description: z.string().optional().describe("Tool description"),
-  data: z
-    .record(z.string(), z.unknown())
-    .optional()
-    .describe("Additional tool configuration fields"),
+  name: z.string().describe("Unique tool name (lowercase, alphanumeric, underscores)"),
+  description: z.string().describe("Description of the tool"),
+  tags: tagsSchema,
   org_id: orgIdParam,
 };
 
 export const toolUpdateParams = {
   tool_id: z.string().describe("The tool ID to update"),
-  data: z
-    .record(z.string(), z.unknown())
-    .describe("Version data for the tool"),
+  description: z.string().optional().describe("Updated description"),
+  tags: tagsSchema.optional(),
   org_id: orgIdParam,
 };
 
 // ── Metric ──
 
 export const metricCreateParams = {
-  metric_name: z.string().describe("Name for the metric"),
-  data: z
+  name: z.string().describe("Unique metric name within the organization"),
+  description: z.string().describe("Description of the metric"),
+  applied_to_services: z
+    .array(z.string())
+    .describe("Service IDs this metric applies to"),
+  additional_notes: z
+    .string()
+    .nullable()
+    .describe("Additional notes about the metric (null if none)"),
+  tags: tagsSchema,
+  metric_value: z
     .record(z.string(), z.unknown())
-    .optional()
-    .describe("Additional metric configuration fields"),
+    .describe(
+      'Metric value definition. Must include "type" discriminator: "boolean", "numerical", or "categorical"',
+    ),
   org_id: orgIdParam,
 };
 
 export const metricUpdateParams = {
   metric_id: z.string().describe("The metric ID to update"),
-  data: z
-    .record(z.string(), z.unknown())
-    .describe("Version data for the metric"),
+  description: z.string().optional().describe("Updated description"),
+  applied_to_services: z
+    .array(z.string())
+    .optional()
+    .describe("Service IDs this metric applies to"),
+  additional_notes: z
+    .string()
+    .nullable()
+    .optional()
+    .describe("Additional notes about the metric"),
+  tags: tagsSchema.optional(),
   org_id: orgIdParam,
 };
 
 // ── Persona ──
 
-export const personaCreateParams = {
-  persona_name: z.string().describe("Name for the persona"),
-  data: z
+const personaInitialVersionSchema = z.object({
+  background: z.string().describe("Background of the simulation persona"),
+  user_models: z
+    .array(z.string())
+    .describe("User models associated with the persona"),
+  nonsensitive_user_variables: z
+    .record(z.string(), z.unknown())
+    .describe("Non-sensitive user variables provided before the conversation"),
+  sensitive_user_variables: z
     .record(z.string(), z.unknown())
     .optional()
-    .describe("Additional persona configuration fields"),
+    .describe("Sensitive user variables provided before the conversation"),
+  preferred_language: z
+    .string()
+    .optional()
+    .describe("Preferred language in ISO 639-3 format"),
+  timezone: z
+    .string()
+    .optional()
+    .describe("Timezone in IANA tz database format"),
+});
+
+export const personaCreateParams = {
+  name: z.string().describe("Name for the simulation persona"),
+  role: z.string().describe("Role of the simulation persona"),
+  tags: tagsSchema,
+  initial_version: personaInitialVersionSchema.describe(
+    "Initial version of the persona",
+  ),
   org_id: orgIdParam,
 };
 
 export const personaUpdateParams = {
   persona_id: z.string().describe("The persona ID to update"),
-  data: z
-    .record(z.string(), z.unknown())
-    .describe("Version data for the persona"),
+  tags: tagsSchema.optional(),
   org_id: orgIdParam,
 };
 
 // ── Scenario ──
 
+const scenarioInitialVersionSchema = z.object({
+  objective: z.string().describe("Objective of the simulation scenario"),
+  instructions: z.string().describe("Instructions for the simulation"),
+  initial_message_type: z
+    .enum(["user-message", "external-event", "skip"])
+    .describe("How the conversation starts"),
+  conversation_starts_at: z
+    .string()
+    .nullable()
+    .describe("UTC timestamp for when the conversation starts, or null"),
+});
+
 export const scenarioCreateParams = {
-  scenario_name: z.string().describe("Name for the scenario"),
-  data: z
-    .record(z.string(), z.unknown())
-    .optional()
-    .describe("Additional scenario configuration fields"),
+  name: z.string().describe("Name for the simulation scenario"),
+  tags: tagsSchema,
+  initial_version: scenarioInitialVersionSchema.describe(
+    "Initial version of the scenario",
+  ),
   org_id: orgIdParam,
 };
 
 export const scenarioUpdateParams = {
   scenario_id: z.string().describe("The scenario ID to update"),
-  data: z
-    .record(z.string(), z.unknown())
-    .describe("Version data for the scenario"),
+  tags: tagsSchema.optional(),
   org_id: orgIdParam,
 };
 
 // ── Dynamic Behavior Set ──
 
+const dbsInitialVersionSchema = z.object({
+  is_active: z
+    .boolean()
+    .describe("Whether the dynamic behavior set should be active after creation"),
+  conversation_triggers: z
+    .array(z.string())
+    .describe("Conversation triggers that activate this behavior set"),
+  actions: z
+    .array(z.record(z.string(), z.unknown()))
+    .describe(
+      'Actions to perform when activated. Each must include "type": "inject-instruction" or "change-tool-candidates"',
+    ),
+});
+
 export const dynamicBehaviorSetCreateParams = {
-  data: z
-    .record(z.string(), z.unknown())
-    .describe("Dynamic behavior set data"),
+  name: z.string().describe("Name for the dynamic behavior set"),
+  tags: tagsSchema,
+  applied_to_services: z
+    .array(z.string())
+    .describe("Service IDs to apply this behavior set to"),
+  initial_version: dbsInitialVersionSchema.describe(
+    "Initial version configuration",
+  ),
   org_id: orgIdParam,
 };
 
@@ -336,61 +414,96 @@ export const dynamicBehaviorSetUpdateParams = {
   dynamic_behavior_set_id: z
     .string()
     .describe("The dynamic behavior set ID to update"),
-  data: z
-    .record(z.string(), z.unknown())
-    .describe("Version data for the dynamic behavior set"),
+  name: z.string().optional().describe("Updated name"),
+  tags: tagsSchema.optional(),
+  applied_to_services: z
+    .array(z.string())
+    .optional()
+    .describe("Service IDs to apply this behavior set to"),
+  is_active: z.boolean().optional().describe("Whether the behavior set is active"),
   org_id: orgIdParam,
 };
 
 // ── Unit Test ──
 
 export const unitTestCreateParams = {
-  data: z
-    .record(z.string(), z.unknown())
-    .describe("Unit test data"),
+  name: z.string().describe("Name for the unit test"),
+  description: z.string().describe("Description of the unit test"),
+  service_id: z.string().describe("Service ID to run the test on"),
+  service_version_set_name: z
+    .string()
+    .describe("Version set name to use (e.g., 'edge', 'release')"),
+  persona_id: z.string().describe("Persona ID for the test"),
+  scenario_id: z.string().describe("Scenario ID for the test"),
+  max_interactions: z
+    .number()
+    .int()
+    .positive()
+    .describe("Max interactions before the test fails"),
+  success_criterions: z
+    .array(successCriterionSchema)
+    .describe("Success criteria for the test"),
+  tags: tagsSchema,
   org_id: orgIdParam,
 };
 
 export const unitTestUpdateParams = {
   unit_test_id: z.string().describe("The unit test ID to update"),
-  data: z
-    .record(z.string(), z.unknown())
-    .describe("Version data for the unit test"),
+  description: z.string().optional().describe("Updated description"),
+  service_id: z.string().optional().describe("Service ID to run the test on"),
+  service_version_set_name: z
+    .string()
+    .optional()
+    .describe("Version set name to use"),
+  persona_id: z.string().optional().describe("Persona ID for the test"),
+  scenario_id: z.string().optional().describe("Scenario ID for the test"),
+  max_interactions: z
+    .number()
+    .int()
+    .positive()
+    .optional()
+    .describe("Max interactions before the test fails"),
+  success_criterions: z
+    .array(successCriterionSchema)
+    .optional()
+    .describe("Success criteria for the test"),
+  run_count: z
+    .number()
+    .int()
+    .positive()
+    .optional()
+    .describe("Number of sessions to simulate per run"),
+  tags: tagsSchema.optional(),
   org_id: orgIdParam,
 };
 
 // ── Unit Test Set ──
 
 export const unitTestSetCreateParams = {
-  data: z
-    .record(z.string(), z.unknown())
-    .describe("Unit test set data"),
+  name: z.string().describe("Name for the unit test set"),
+  description: z
+    .string()
+    .nullable()
+    .describe("Description of the unit test set (null if none)"),
+  unit_test_runs: z
+    .array(unitTestRunDescriptorSchema)
+    .describe("Unit test runs included in this set"),
+  tags: tagsSchema,
   org_id: orgIdParam,
 };
 
 export const unitTestSetUpdateParams = {
   unit_test_set_id: z.string().describe("The unit test set ID to update"),
-  data: z
-    .record(z.string(), z.unknown())
-    .describe("Version data for the unit test set"),
-  org_id: orgIdParam,
-};
-
-// ── User Dimension ──
-
-export const userDimensionCreateParams = {
-  data: z
-    .record(z.string(), z.unknown())
-    .describe("User dimension data"),
-  org_id: orgIdParam,
-};
-
-export const userDimensionUpdateParams = {
-  user_dimension_id: z
+  name: z.string().optional().describe("Updated name"),
+  description: z
     .string()
-    .describe("The user dimension ID to update"),
-  data: z
-    .record(z.string(), z.unknown())
-    .describe("Version data for the user dimension"),
+    .nullable()
+    .optional()
+    .describe("Updated description"),
+  unit_test_runs: z
+    .array(unitTestRunDescriptorSchema)
+    .optional()
+    .describe("Unit test runs included in this set"),
+  tags: tagsSchema.optional(),
   org_id: orgIdParam,
 };

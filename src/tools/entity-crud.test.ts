@@ -141,6 +141,32 @@ test("forge_agent_create sends agent_name to the API", async () => {
   });
 });
 
+test("forge_entity_create remains available as a generic fallback", async () => {
+  const requests: Array<{ path: string; options?: Record<string, unknown> }> = [];
+  const tools = registerTools(async (path, options) => {
+    requests.push({ path, options });
+    return { id: "new-agent-id" };
+  });
+
+  const createTool = tools.get("forge_entity_create");
+  assert.ok(createTool, "forge_entity_create should be registered");
+
+  await createTool({
+    entity_type: "agent",
+    data: { agent_name: "Legacy Agent" },
+    org_id: "acme",
+  });
+
+  assert.equal(requests.length, 1);
+  assert.deepEqual(requests[0], {
+    path: "organization/agent",
+    options: {
+      method: "POST",
+      body: { agent_name: "Legacy Agent" },
+    },
+  });
+});
+
 test("forge_context_graph_create sends state_machine_name to the API", async () => {
   const requests: Array<{ path: string; options?: Record<string, unknown> }> = [];
   const tools = registerTools(async (path, options) => {
@@ -159,6 +185,59 @@ test("forge_context_graph_create sends state_machine_name to the API", async () 
     options: {
       method: "POST",
       body: { state_machine_name: "Test Flow" },
+    },
+  });
+});
+
+test("forge_entity_update remains available as a generic fallback", async () => {
+  const requests: Array<{ path: string; options?: Record<string, unknown> }> = [];
+  const tools = registerTools(async (path, options) => {
+    requests.push({ path, options });
+
+    if (path === "organization/agent" && options?.queryParams) {
+      return { agents: [{ id: "agent-123", latest_version: null }] };
+    }
+
+    if (path === "organization/agent/agent-123/") {
+      return { ok: true };
+    }
+
+    throw new Error(`Unexpected request: ${path}`);
+  });
+
+  const updateTool = tools.get("forge_entity_update");
+  assert.ok(updateTool, "forge_entity_update should be registered");
+
+  await updateTool({
+    entity_type: "agent",
+    entity_id: "agent-123",
+    data: {
+      initials: "LA",
+      identity: { name: "Legacy Agent" },
+      background: "Background",
+      behaviors: ["Behavior"],
+      communication_patterns: ["Pattern"],
+    },
+    org_id: "acme",
+  });
+
+  assert.equal(requests.length, 2);
+  assert.deepEqual(requests[0], {
+    path: "organization/agent",
+    options: { queryParams: { id: "agent-123", limit: "1" } },
+  });
+  assert.deepEqual(requests[1], {
+    path: "organization/agent/agent-123/",
+    options: {
+      method: "POST",
+      body: {
+        initials: "LA",
+        identity: { name: "Legacy Agent" },
+        background: "Background",
+        behaviors: ["Behavior"],
+        communication_patterns: ["Pattern"],
+        voice_config: { voice_id: "e07c00bc-4134-4eae-9ea4-1a55fb45746b" },
+      },
     },
   });
 });
@@ -200,4 +279,42 @@ test("forge_service_create sends all service fields to the API", async () => {
       },
     },
   });
+});
+
+test("forge_tool_create sends name, description, and tags to the API", async () => {
+  const requests: Array<{ path: string; options?: Record<string, unknown> }> = [];
+  const tools = registerTools(async (path, options) => {
+    requests.push({ path, options });
+    return { id: "new-tool-id" };
+  });
+
+  const createTool = tools.get("forge_tool_create");
+  assert.ok(createTool, "forge_tool_create should be registered");
+
+  await createTool({
+    name: "my_tool",
+    description: "A test tool",
+    tags: {},
+    org_id: "acme",
+  });
+
+  assert.equal(requests.length, 1);
+  assert.deepEqual(requests[0], {
+    path: "tool/",
+    options: {
+      method: "POST",
+      body: {
+        name: "my_tool",
+        description: "A test tool",
+        tags: {},
+      },
+    },
+  });
+});
+
+test("no user_dimension create/update tools are registered", async () => {
+  const tools = registerTools(async () => ({}));
+
+  assert.equal(tools.has("forge_user_dimension_create"), false);
+  assert.equal(tools.has("forge_user_dimension_update"), false);
 });
