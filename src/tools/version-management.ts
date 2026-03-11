@@ -1,6 +1,7 @@
 import { z } from "zod";
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import type { ClientPool } from "../api/client-pool.js";
+import { assertValidEntityId } from "../config/storage.js";
 import { getClientForOrg, textResult, jsonResult } from "./shared.js";
 
 function findService(
@@ -209,6 +210,7 @@ export function registerVersionTools(
       org_id: z.string().optional().describe("Org ID (uses active org if omitted)"),
     },
     async ({ entity_type, entity_id, version_number, org_id }) => {
+      assertValidEntityId(entity_id);
       const { client } = getClientForOrg(pool, org_id);
 
       const apiPath =

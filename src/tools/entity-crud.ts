@@ -8,6 +8,7 @@ import {
   ENTITY_LIST_KEYS,
   type EntityType,
 } from "../config/constants.js";
+import { assertValidEntityId } from "../config/storage.js";
 import { getClientForOrg, textResult, jsonResult } from "./shared.js";
 
 const entityTypeSchema = z
@@ -75,6 +76,7 @@ export function registerEntityTools(server: McpServer, pool: ClientPool): void {
       org_id: z.string().optional().describe("Org ID (uses active org if omitted)"),
     },
     async ({ entity_type, entity_id, org_id }) => {
+      assertValidEntityId(entity_id);
       const { client } = getClientForOrg(pool, org_id);
       const et = entity_type as EntityType;
       const apiPath = ENTITY_API_PATHS[et];
@@ -130,6 +132,7 @@ export function registerEntityTools(server: McpServer, pool: ClientPool): void {
       org_id: z.string().optional().describe("Org ID (uses active org if omitted)"),
     },
     async ({ entity_type, entity_id, data, org_id }) => {
+      assertValidEntityId(entity_id);
       const { client } = getClientForOrg(pool, org_id);
       const idPath = ENTITY_ID_PATHS[entity_type as EntityType];
       const body = typeof data === "string" ? JSON.parse(data) : data;
@@ -152,6 +155,7 @@ export function registerEntityTools(server: McpServer, pool: ClientPool): void {
       org_id: z.string().optional().describe("Org ID (uses active org if omitted)"),
     },
     async ({ entity_type, entity_id, org_id }) => {
+      assertValidEntityId(entity_id);
       const { client } = getClientForOrg(pool, org_id);
       const idPath = ENTITY_ID_PATHS[entity_type as EntityType];
 

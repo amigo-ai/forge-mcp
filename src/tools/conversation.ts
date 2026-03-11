@@ -2,6 +2,7 @@ import { z } from "zod";
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import type { ClientPool } from "../api/client-pool.js";
 import { createLogger } from "../config/logger.js";
+import { assertValidEntityId } from "../config/storage.js";
 import { getClientForOrg, textResult, jsonResult } from "./shared.js";
 
 const log = createLogger("conversation");
@@ -305,6 +306,8 @@ export function registerConversationTools(
       org_id: z.string().optional().describe("Org ID (uses active org if omitted)"),
     },
     async ({ conversation_id, interaction_id, org_id }) => {
+      assertValidEntityId(conversation_id);
+      if (interaction_id) assertValidEntityId(interaction_id);
       const { client } = getClientForOrg(pool, org_id);
 
       if (interaction_id) {
@@ -366,6 +369,8 @@ export function registerConversationTools(
       org_id: z.string().optional().describe("Org ID (uses active org if omitted)"),
     },
     async ({ conversation_id, metric_name, interaction_id, org_id }) => {
+      assertValidEntityId(conversation_id);
+      if (interaction_id) assertValidEntityId(interaction_id);
       const { client } = getClientForOrg(pool, org_id);
 
       // Find metric by name

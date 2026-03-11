@@ -31,6 +31,20 @@ export function assertValidOrgId(orgId: string): void {
   }
 }
 
+export function assertValidEntityId(entityId: string): void {
+  if (entityId.trim().length === 0) {
+    throw new Error("Entity ID cannot be empty.");
+  }
+
+  if (/[\\/]/u.test(entityId)) {
+    throw new Error("Entity ID cannot contain path separators.");
+  }
+
+  if (entityId === "." || entityId === "..") {
+    throw new Error("Entity ID cannot be a relative path component.");
+  }
+}
+
 function getCredentialFilePath(orgId: string): string {
   assertValidOrgId(orgId);
   return path.join(CREDENTIALS_DIR, `${orgId}.json`);
