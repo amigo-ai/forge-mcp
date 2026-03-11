@@ -195,7 +195,7 @@ export const contextGraphUpdateParams = {
     .describe("Name of the terminal state (must have exactly one action)"),
   references: z
     .record(z.string(), z.unknown())
-    .optional()
+    .default({})
     .describe("Named references for reuse across states"),
   global_intra_state_navigation_guidelines: z
     .array(z.string())
