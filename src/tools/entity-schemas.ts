@@ -77,8 +77,11 @@ const exitConditionSchema = z.object({
 });
 
 const tagsSchema = z
-  .record(z.string(), z.unknown())
-  .describe("Tags (alphanumeric keys and values)");
+  .record(
+    z.string().regex(/^[\w\s]+$/, "Tag keys must be alphanumeric (letters, digits, underscores, spaces)"),
+    z.string().regex(/^[\w\s]+$/, "Tag values must be alphanumeric (letters, digits, underscores, spaces)"),
+  )
+  .describe("Tags (alphanumeric keys and values, no hyphens or special characters)");
 
 // ── Context graph state types ──
 // OpenAPI: ActionState-Input, DecisionState-Input, RecallState-Input,
