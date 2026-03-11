@@ -18,13 +18,14 @@ import { registerVersionTools } from "./tools/version-management.js";
 
 import { registerResources } from "./resources/instructions.js";
 import { createLogger } from "./config/logger.js";
+import { SERVER_VERSION } from "./config/server-version.js";
 import { setSessionOrg } from "./tools/shared.js";
 
 const log = createLogger("server");
 
 const server = new McpServer({
   name: "forge-tools",
-  version: "0.1.0",
+  version: SERVER_VERSION,
 });
 
 const pool = new ClientPool();
