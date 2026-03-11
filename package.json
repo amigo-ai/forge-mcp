@@ -26,6 +26,10 @@
     "ai-agents",
     "model-context-protocol"
   ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/amigo-ai/forge-mcp"
+  },
   "author": "",
   "license": "ISC",
   "dependencies": {
