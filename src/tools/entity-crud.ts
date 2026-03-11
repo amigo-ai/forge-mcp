@@ -332,7 +332,7 @@ export function registerEntityTools(
 
   server.tool(
     "forge_service_create",
-    "Create a new service linking an agent and context graph into a deployable unit.",
+    "Create a new service linking an agent and context graph into a deployable unit. IMPORTANT: Both the agent and context graph must already have at least one version before creating the service.",
     serviceCreateParams,
     async ({ org_id, ...body }) => {
       return handleCreate(pool, "service", body, org_id);

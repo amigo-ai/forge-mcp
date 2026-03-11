@@ -2,6 +2,22 @@ import { z } from "zod";
 
 // OpenAPI reference: https://api.amigo.ai/v1/openapi.json
 
+// ── Shared patterns ──
+
+/** State names must be alphanumeric + underscores only. */
+const stateNamePattern = /^[A-Za-z0-9_]+$/;
+const stateNameSchema = z
+  .string()
+  .regex(stateNamePattern, "State names must contain only letters, numbers, and underscores (no spaces)");
+
+/** Keyterms: 1-3 lowercase words (a-z and hyphens), separated by spaces. */
+const keytermSchema = z
+  .string()
+  .regex(
+    /^[a-z-]+( [a-z-]+){0,2}$/,
+    "Keyterms must be 1-3 lowercase words (a-z and hyphens only), e.g. 'help desk'",
+  );
+
 // ── Reusable sub-schemas ──
 
 // OpenAPI: RelationshipToDeveloper-Input
@@ -57,7 +73,7 @@ const toolCallSpecSchema = z.object({
 
 const exitConditionSchema = z.object({
   description: z.string().describe("When this transition should fire"),
-  next_state: z.string().describe("Name of the target state"),
+  next_state: stateNameSchema.describe("Name of the target state (alphanumeric and underscores only)"),
 });
 
 const tagsSchema = z
@@ -71,7 +87,7 @@ const tagsSchema = z
 // OpenAPI: ActionState-Input
 const actionStateSchema = z.object({
   type: z.literal("action"),
-  name: z.string().describe("Unique state name"),
+  name: stateNameSchema.describe("Unique state name (alphanumeric and underscores only)"),
   objective: z.string().describe("What the agent should accomplish in this state"),
   actions: z.array(z.string()).min(1).describe("Actions the agent should take"),
   intra_state_navigation_guidelines: z.array(z.string()),
@@ -86,7 +102,7 @@ const actionStateSchema = z.object({
 // OpenAPI: DecisionState-Input
 const decisionStateSchema = z.object({
   type: z.literal("decision"),
-  name: z.string().describe("Unique state name"),
+  name: stateNameSchema.describe("Unique state name (alphanumeric and underscores only)"),
   objective: z.string(),
   decision_guidelines: z.array(z.string()).describe("Rules for choosing the next state"),
   exit_conditions: z.array(exitConditionSchema),
@@ -98,27 +114,27 @@ const decisionStateSchema = z.object({
 // OpenAPI: RecallState-Input
 const recallStateSchema = z.object({
   type: z.literal("recall"),
-  name: z.string().describe("Unique state name"),
+  name: stateNameSchema.describe("Unique state name (alphanumeric and underscores only)"),
   queries: z.array(z.string()).nullable().describe("Search queries for user memory"),
   requested_information: z.string().nullable().describe("Description of what to retrieve"),
-  next_state: z.string(),
+  next_state: stateNameSchema,
 });
 
 // OpenAPI: AnnotationState-Input
 const annotationStateSchema = z.object({
   type: z.literal("annotation"),
-  name: z.string().describe("Unique state name"),
+  name: stateNameSchema.describe("Unique state name (alphanumeric and underscores only)"),
   inner_thought: z.string().describe("Fixed inner thought injected into context"),
-  next_state: z.string(),
+  next_state: stateNameSchema,
 });
 
 // OpenAPI: ReflectionState-Input
 const reflectionStateSchema = z.object({
   type: z.literal("reflection"),
-  name: z.string().describe("Unique state name"),
+  name: stateNameSchema.describe("Unique state name (alphanumeric and underscores only)"),
   problem: z.string().describe("Problem for the agent to reason about"),
   word_limit: z.number().int().positive(),
-  next_state: z.string(),
+  next_state: stateNameSchema,
   tool_call_specs: z.array(toolCallSpecSchema),
   audio_fillers: z.array(z.string()).max(5),
   audio_filler_triggered_after: z.number().min(0).max(10),
@@ -127,8 +143,8 @@ const reflectionStateSchema = z.object({
 // OpenAPI: ToolCallState-Input
 const toolCallStateSchema = z.object({
   type: z.literal("tool-call"),
-  name: z.string().describe("Unique state name"),
-  next_state: z.string(),
+  name: stateNameSchema.describe("Unique state name (alphanumeric and underscores only)"),
+  next_state: stateNameSchema,
   designated_tool: toolCallSpecSchema,
   designated_tool_call_objective: z.string(),
   designated_tool_call_context: z.string(),
@@ -222,15 +238,12 @@ export const contextGraphCreateParams = {
 export const contextGraphUpdateParams = {
   context_graph_id: z.string().describe("The context graph ID to update"),
   description: z.string().describe("Description of the conversation flow"),
-  new_user_initial_state: z
-    .string()
-    .describe("State name for new users (must be an action state)"),
-  returning_user_initial_state: z
-    .string()
-    .describe("State name for returning users (must be an action state)"),
-  terminal_state: z
-    .string()
-    .describe("Name of the terminal state (must have exactly one action)"),
+  new_user_initial_state: stateNameSchema
+    .describe("State name for new users (must be an action state, alphanumeric and underscores only)"),
+  returning_user_initial_state: stateNameSchema
+    .describe("State name for returning users (must be an action state, alphanumeric and underscores only)"),
+  terminal_state: stateNameSchema
+    .describe("Name of the terminal state (must have exactly one action, alphanumeric and underscores only)"),
   references: z
     .record(z.string(), z.unknown())
     .default({})
@@ -261,7 +274,7 @@ export const serviceCreateParams = {
   name: z.string().describe("Service name"),
   description: z.string().describe("Brief description of what this service does"),
   is_active: z.boolean().describe("Whether the service is active"),
-  keyterms: z.array(z.string()).describe("Keywords for audio transcription correction"),
+  keyterms: z.array(keytermSchema).describe("Keywords for audio transcription correction (each: 1-3 lowercase words, a-z and hyphens only)"),
   tags: tagsSchema,
   org_id: orgIdParam,
 };
@@ -278,7 +291,7 @@ export const serviceUpdateParams = {
     .optional()
     .describe("ID of the context graph to link"),
   tags: tagsSchema.optional(),
-  keyterms: z.array(z.string()).optional().describe("Keywords for audio transcription correction"),
+  keyterms: z.array(keytermSchema).optional().describe("Keywords for audio transcription correction (each: 1-3 lowercase words, a-z and hyphens only)"),
   org_id: orgIdParam,
 };
 
