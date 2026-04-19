@@ -37,7 +37,7 @@
   "bugs": {
     "url": "https://github.com/amigo-ai/forge-mcp/issues"
   },
-  "author": "Amigo AI",
+  "author": "Amigo Inc.",
   "license": "ISC",
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.27.1",
