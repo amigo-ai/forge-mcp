@@ -1,7 +1,7 @@
 {
   "name": "@amigo-ai/forge-tools",
   "version": "0.1.5",
-  "description": "MCP server for Amigo Agent Forge - manage AI agents, context graphs, services, and conversations",
+  "description": "Prototype MCP server for Amigo Agent Forge workflows",
   "type": "module",
   "main": "dist/index.js",
   "files": [
@@ -30,7 +30,11 @@
     "type": "git",
     "url": "https://github.com/amigo-ai/forge-mcp"
   },
-  "author": "",
+  "homepage": "https://github.com/amigo-ai/forge-mcp",
+  "bugs": {
+    "url": "https://github.com/amigo-ai/forge-mcp/issues"
+  },
+  "author": "Amigo AI",
   "license": "ISC",
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.27.1",
