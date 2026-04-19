@@ -1,33 +1,72 @@
-<svg width="1200" height="500" viewBox="0 0 1200 500" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <rect width="1200" height="500" rx="28" fill="#FFF8F1"/>
-  <text x="68" y="72" fill="#4A2416" font-family="Arial, Helvetica, sans-serif" font-size="34" font-weight="700">Prototype MCP flow</text>
-  <text x="68" y="109" fill="#7B5A4D" font-family="Arial, Helvetica, sans-serif" font-size="20">Coding agent → forge-tools prototype → Agent Forge APIs and credential storage</text>
-  <rect x="68" y="176" width="232" height="176" rx="24" fill="#FFFFFF" stroke="#EEDBCF" stroke-width="2"/>
-  <text x="102" y="224" fill="#4A2416" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="700">MCP clients</text>
-  <text x="102" y="268" fill="#7B5A4D" font-family="Arial, Helvetica, sans-serif" font-size="19">Codex</text>
-  <text x="102" y="298" fill="#7B5A4D" font-family="Arial, Helvetica, sans-serif" font-size="19">Claude Code</text>
-  <text x="102" y="328" fill="#7B5A4D" font-family="Arial, Helvetica, sans-serif" font-size="19">Cursor + others</text>
-  <rect x="362" y="132" width="260" height="244" rx="28" fill="#6B331C"/>
-  <text x="404" y="196" fill="#FFE6C8" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="700" letter-spacing="0.14em">PROTOTYPE MCP</text>
-  <text x="404" y="246" fill="#FFFFFF" font-family="Arial, Helvetica, sans-serif" font-size="30" font-weight="700">forge-tools</text>
-  <text x="404" y="295" fill="#F4D9C8" font-family="Arial, Helvetica, sans-serif" font-size="19">Org switching,</text>
-  <text x="404" y="324" fill="#F4D9C8" font-family="Arial, Helvetica, sans-serif" font-size="19">entity CRUD,</text>
-  <text x="404" y="353" fill="#F4D9C8" font-family="Arial, Helvetica, sans-serif" font-size="19">simulation, versions</text>
-  <rect x="684" y="114" width="194" height="112" rx="24" fill="#FFFFFF" stroke="#EEDBCF" stroke-width="2"/>
-  <text x="717" y="159" fill="#4A2416" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="700">Credentials</text>
-  <text x="717" y="192" fill="#7B5A4D" font-family="Arial, Helvetica, sans-serif" font-size="18">~/.amigo/credentials</text>
-  <rect x="684" y="246" width="220" height="130" rx="24" fill="#C65E2B"/>
-  <text x="720" y="298" fill="#FFF4E8" font-family="Arial, Helvetica, sans-serif" font-size="23" font-weight="700">Agent Forge APIs</text>
-  <text x="720" y="332" fill="#FFE0C6" font-family="Arial, Helvetica, sans-serif" font-size="18">Entities, conversations,</text>
-  <text x="720" y="360" fill="#FFE0C6" font-family="Arial, Helvetica, sans-serif" font-size="18">version operations</text>
-  <rect x="964" y="176" width="168" height="176" rx="24" fill="#FFFFFF" stroke="#EEDBCF" stroke-width="2"/>
-  <text x="996" y="224" fill="#4A2416" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="700">Prototype</text>
-  <text x="996" y="260" fill="#7B5A4D" font-family="Arial, Helvetica, sans-serif" font-size="18">Fast-moving</text>
-  <text x="996" y="288" fill="#7B5A4D" font-family="Arial, Helvetica, sans-serif" font-size="18">contracts</text>
-  <text x="996" y="316" fill="#7B5A4D" font-family="Arial, Helvetica, sans-serif" font-size="18">Evaluation-first</text>
-  <path d="M300 264H342" stroke="#C79E87" stroke-width="4" stroke-linecap="round"/>
-  <path d="M622 264H660" stroke="#C79E87" stroke-width="4" stroke-linecap="round"/>
-  <path d="M660 264V170H684" stroke="#C79E87" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
-  <path d="M660 264V311H684" stroke="#C79E87" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
-  <path d="M904 311H944" stroke="#C79E87" stroke-width="4" stroke-linecap="round"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="354" viewBox="0 0 1200 354">
+
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 7" refX="9" refY="3.5" markerWidth="8" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 0.5 L 9 3.5 L 0 6.5" fill="none" stroke="#575452" stroke-width="1" opacity="0.4"/>
+    </marker>
+    <marker id="arrowRev" viewBox="0 0 10 7" refX="1" refY="3.5" markerWidth="8" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 10 0.5 L 1 3.5 L 10 6.5" fill="none" stroke="#575452" stroke-width="1" opacity="0.4"/>
+    </marker>
+    <linearGradient id="bgGrad" x1="0" y1="0" x2="0.6" y2="1">
+      <stop offset="0%" stop-color="#FAF7F5"/>
+      <stop offset="100%" stop-color="#F1EAE7"/>
+    </linearGradient>
+    <linearGradient id="containerFill" x1="0" y1="0" x2="0.5" y2="1">
+      <stop offset="0%" stop-color="#F1EAE7" stop-opacity="0.06"/>
+      <stop offset="100%" stop-color="#B3AEAC" stop-opacity="0.04"/>
+    </linearGradient>
+    <linearGradient id="cardFill" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#F1EAE7" stop-opacity="0.12"/>
+      <stop offset="100%" stop-color="#B3AEAC" stop-opacity="0.08"/>
+    </linearGradient>
+    <linearGradient id="strokeGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="white" stop-opacity="0.1"/>
+      <stop offset="100%" stop-color="#999999" stop-opacity="0.04"/>
+    </linearGradient>
+    <linearGradient id="strokeGradSubtle" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="white" stop-opacity="0.08"/>
+      <stop offset="100%" stop-color="#999999" stop-opacity="0.03"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1200" height="354" fill="url(#bgGrad)"/>
+
+  <rect x="32" y="32" width="355" height="282" rx="10" fill="url(#cardFill)" stroke="#D7D2D0" stroke-opacity="0.4" stroke-width="0.75"/>
+  <text x="209.5" y="60" text-anchor="middle" fill="#575452" font-family="'Diatype Mono', 'SF Mono', 'Fira Code', monospace" font-size="13" font-weight="500" letter-spacing="2">MEASURE</text>
+  <rect x="99.5" y="76" width="220" height="60" rx="8" fill="white" fill-opacity="0.9" stroke="#D7D2D0" stroke-opacity="0.5" stroke-width="0.75"/>
+  <text x="209.5" y="100" text-anchor="middle" fill="#100F0F" font-family="'Flecha S', Georgia, serif" font-size="16" font-weight="400">Metric Evaluation</text>
+  <text x="209.5" y="120" text-anchor="middle" fill="#575452" font-family="Inter, -apple-system, system-ui, sans-serif" font-size="12">Score every interaction</text>
+  <rect x="99.5" y="150" width="220" height="60" rx="8" fill="white" fill-opacity="0.8" stroke="#D7D2D0" stroke-opacity="0.5" stroke-width="0.75"/>
+  <text x="209.5" y="174" text-anchor="middle" fill="#100F0F" font-family="'Flecha S', Georgia, serif" font-size="16" font-weight="400">Baselines</text>
+  <text x="209.5" y="194" text-anchor="middle" fill="#575452" font-family="Inter, -apple-system, system-ui, sans-serif" font-size="12">Track performance over time</text>
+
+  <rect x="422" y="32" width="355" height="282" rx="10" fill="url(#cardFill)" stroke="#D7D2D0" stroke-opacity="0.4" stroke-width="0.75"/>
+  <text x="599.5" y="60" text-anchor="middle" fill="#575452" font-family="'Diatype Mono', 'SF Mono', 'Fira Code', monospace" font-size="13" font-weight="500" letter-spacing="2">IDENTIFY</text>
+  <rect x="489.5" y="76" width="220" height="60" rx="8" fill="white" fill-opacity="0.9" stroke="#D7D2D0" stroke-opacity="0.5" stroke-width="0.75"/>
+  <text x="599.5" y="100" text-anchor="middle" fill="#100F0F" font-family="'Flecha S', Georgia, serif" font-size="16" font-weight="400">Pattern Discovery</text>
+  <text x="599.5" y="120" text-anchor="middle" fill="#575452" font-family="Inter, -apple-system, system-ui, sans-serif" font-size="12">Find recurring failures</text>
+  <rect x="489.5" y="150" width="220" height="60" rx="8" fill="white" fill-opacity="0.8" stroke="#D7D2D0" stroke-opacity="0.5" stroke-width="0.75"/>
+  <text x="599.5" y="174" text-anchor="middle" fill="#100F0F" font-family="'Flecha S', Georgia, serif" font-size="16" font-weight="400">Root Cause Analysis</text>
+  <text x="599.5" y="194" text-anchor="middle" fill="#575452" font-family="Inter, -apple-system, system-ui, sans-serif" font-size="12">Trace to config or prompt</text>
+  <rect x="489.5" y="224" width="220" height="60" rx="8" fill="white" fill-opacity="0.8" stroke="#D7D2D0" stroke-opacity="0.5" stroke-width="0.75"/>
+  <text x="599.5" y="248" text-anchor="middle" fill="#100F0F" font-family="'Flecha S', Georgia, serif" font-size="16" font-weight="400">Optimization Candidates</text>
+  <text x="599.5" y="268" text-anchor="middle" fill="#575452" font-family="Inter, -apple-system, system-ui, sans-serif" font-size="12">Rank by impact</text>
+
+  <rect x="812" y="32" width="355" height="282" rx="10" fill="url(#cardFill)" stroke="#D7D2D0" stroke-opacity="0.4" stroke-width="0.75"/>
+  <text x="989.5" y="60" text-anchor="middle" fill="#575452" font-family="'Diatype Mono', 'SF Mono', 'Fira Code', monospace" font-size="13" font-weight="500" letter-spacing="2">TEST AND PROMOTE</text>
+  <rect x="879.5" y="76" width="220" height="60" rx="8" fill="white" fill-opacity="0.9" stroke="#D7D2D0" stroke-opacity="0.5" stroke-width="0.75"/>
+  <text x="989.5" y="100" text-anchor="middle" fill="#100F0F" font-family="'Flecha S', Georgia, serif" font-size="16" font-weight="400">Simulation Testing</text>
+  <text x="989.5" y="120" text-anchor="middle" fill="#575452" font-family="Inter, -apple-system, system-ui, sans-serif" font-size="12">Validate changes in sim</text>
+  <rect x="879.5" y="150" width="220" height="60" rx="8" fill="white" fill-opacity="0.8" stroke="#D7D2D0" stroke-opacity="0.5" stroke-width="0.75"/>
+  <text x="989.5" y="174" text-anchor="middle" fill="#100F0F" font-family="'Flecha S', Georgia, serif" font-size="16" font-weight="400">A/B Comparison</text>
+  <text x="989.5" y="194" text-anchor="middle" fill="#575452" font-family="Inter, -apple-system, system-ui, sans-serif" font-size="12">Before vs after metrics</text>
+  <rect x="879.5" y="224" width="220" height="60" rx="8" fill="white" fill-opacity="0.8" stroke="#D7D2D0" stroke-opacity="0.5" stroke-width="0.75"/>
+  <text x="989.5" y="248" text-anchor="middle" fill="#100F0F" font-family="'Flecha S', Georgia, serif" font-size="16" font-weight="400">Staged Rollout</text>
+  <text x="989.5" y="268" text-anchor="middle" fill="#575452" font-family="Inter, -apple-system, system-ui, sans-serif" font-size="12">Staging then production</text>
+
+
+  <!-- Connections -->
+  <line x1="397" y1="173" x2="412" y2="173" stroke="#575452" stroke-width="1" stroke-opacity="0.4" marker-end="url(#arrow)"/>
+  <line x1="787" y1="173" x2="802" y2="173" stroke="#575452" stroke-width="1" stroke-opacity="0.4" marker-end="url(#arrow)"/>
+
 </svg>

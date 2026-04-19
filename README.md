@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="./assets/readme/forge-prototype-banner.svg" alt="Forge MCP prototype banner" width="100%" />
+  <img src="./assets/readme/amigo-banner.png" alt="Amigo banner" width="100%" />
 </p>
 
 <h1 align="center">@amigo-ai/forge-tools</h1>
