@@ -21,8 +21,9 @@ test("instructions tell callers to omit unknown agent voice_config values", asyn
   };
 
   registerResources(server as never);
-  assert.ok(instructionsHandler, "instructions resource should be registered");
-  const result = await instructionsHandler();
+  const handler = instructionsHandler;
+  assert.ok(handler, "instructions resource should be registered");
+  const result = await handler();
   const instructionsText = result.contents[0]?.text ?? "";
 
   assert.match(

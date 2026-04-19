@@ -51,9 +51,10 @@ test("forge_agent_update preserves existing agent voice when voice_config is omi
   });
 
   const updateTool = tools.get("forge_agent_update");
-  assert.ok(updateTool, "forge_agent_update should be registered");
+  const agentUpdateTool = updateTool;
+  assert.ok(agentUpdateTool, "forge_agent_update should be registered");
 
-  await updateTool({
+  await agentUpdateTool({
     agent_id: "agent-123",
     behaviors: ["Updated behavior"],
     org_id: "acme",
@@ -90,9 +91,10 @@ test("forge_agent_update applies the default voice only for the initial agent ve
   });
 
   const updateTool = tools.get("forge_agent_update");
-  assert.ok(updateTool, "forge_agent_update should be registered");
+  const initialAgentUpdateTool = updateTool;
+  assert.ok(initialAgentUpdateTool, "forge_agent_update should be registered");
 
-  await updateTool({
+  await initialAgentUpdateTool({
     agent_id: "agent-123",
     initials: "MA",
     identity: { name: "Maya" },
@@ -127,9 +129,10 @@ test("forge_agent_create sends agent_name to the API", async () => {
   });
 
   const createTool = tools.get("forge_agent_create");
-  assert.ok(createTool, "forge_agent_create should be registered");
+  const agentCreateTool = createTool;
+  assert.ok(agentCreateTool, "forge_agent_create should be registered");
 
-  await createTool({ agent_name: "Test Agent", org_id: "acme" });
+  await agentCreateTool({ agent_name: "Test Agent", org_id: "acme" });
 
   assert.equal(requests.length, 1);
   assert.deepEqual(requests[0], {
@@ -149,9 +152,10 @@ test("forge_entity_create remains available as a generic fallback", async () => 
   });
 
   const createTool = tools.get("forge_entity_create");
-  assert.ok(createTool, "forge_entity_create should be registered");
+  const entityCreateTool = createTool;
+  assert.ok(entityCreateTool, "forge_entity_create should be registered");
 
-  await createTool({
+  await entityCreateTool({
     entity_type: "agent",
     data: { agent_name: "Legacy Agent" },
     org_id: "acme",
@@ -175,9 +179,10 @@ test("forge_context_graph_create sends state_machine_name to the API", async () 
   });
 
   const createTool = tools.get("forge_context_graph_create");
-  assert.ok(createTool, "forge_context_graph_create should be registered");
+  const contextGraphCreateTool = createTool;
+  assert.ok(contextGraphCreateTool, "forge_context_graph_create should be registered");
 
-  await createTool({ state_machine_name: "Test Flow", org_id: "acme" });
+  await contextGraphCreateTool({ state_machine_name: "Test Flow", org_id: "acme" });
 
   assert.equal(requests.length, 1);
   assert.deepEqual(requests[0], {
@@ -206,9 +211,10 @@ test("forge_entity_update remains available as a generic fallback", async () => 
   });
 
   const updateTool = tools.get("forge_entity_update");
-  assert.ok(updateTool, "forge_entity_update should be registered");
+  const entityUpdateTool = updateTool;
+  assert.ok(entityUpdateTool, "forge_entity_update should be registered");
 
-  await updateTool({
+  await entityUpdateTool({
     entity_type: "agent",
     entity_id: "agent-123",
     data: {
@@ -250,9 +256,10 @@ test("forge_service_create sends all service fields to the API", async () => {
   });
 
   const createTool = tools.get("forge_service_create");
-  assert.ok(createTool, "forge_service_create should be registered");
+  const serviceCreateTool = createTool;
+  assert.ok(serviceCreateTool, "forge_service_create should be registered");
 
-  await createTool({
+  await serviceCreateTool({
     agent_id: "agent-1",
     service_hierarchical_state_machine_id: "cg-1",
     name: "My Service",
@@ -289,9 +296,10 @@ test("forge_tool_create sends name, description, and tags to the API", async () 
   });
 
   const createTool = tools.get("forge_tool_create");
-  assert.ok(createTool, "forge_tool_create should be registered");
+  const toolCreateTool = createTool;
+  assert.ok(toolCreateTool, "forge_tool_create should be registered");
 
-  await createTool({
+  await toolCreateTool({
     name: "my_tool",
     description: "A test tool",
     tags: {},
