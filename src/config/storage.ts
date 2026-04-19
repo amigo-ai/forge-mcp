@@ -76,8 +76,8 @@ export function listConfiguredOrgs(): string[] {
   if (!fs.existsSync(CREDENTIALS_DIR)) return [];
   return fs
     .readdirSync(CREDENTIALS_DIR)
-    .filter((f) => f.endsWith(".json"))
-    .map((f) => f.replace(".json", ""));
+    .filter((f: string) => f.endsWith(".json"))
+    .map((f: string) => f.replace(".json", ""));
 }
 
 export function getGlobalConfig(): GlobalConfig {
