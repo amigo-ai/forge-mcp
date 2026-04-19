@@ -5,6 +5,7 @@
   "type": "module",
   "main": "dist/index.js",
   "files": [
+    "assets",
     "dist",
     "README.md",
     "LICENSE"
