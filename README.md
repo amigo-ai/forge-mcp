@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="./assets/readme/forge-prototype-banner.svg" alt="Forge MCP prototype banner" width="100%" />
+</p>
+
 <h1 align="center">@amigo-ai/forge-tools</h1>
 
 <p align="center">Prototype MCP server for Amigo Agent Forge workflows.</p>
@@ -24,9 +28,13 @@ This package gives coding agents access to current Amigo Agent Forge operations:
 >
 > `@amigo-ai/forge-tools` is an experimental product under active development. Expect rough edges, changing tool contracts, and a faster-moving surface than a locked production SDK. Use it for evaluation and early workflows, not as a long-term stability guarantee.
 
-## Tool Context
+## Prototype Context
 
-Forge MCP is the agent-facing bridge for current Agent Forge workflows. It is useful when a coding agent needs an MCP surface for org switching, entity CRUD, conversation simulation, and version-set operations. For direct typed application integrations against the Platform API, use [`@amigo-ai/platform-sdk`](https://github.com/amigo-ai/amigo-platform-typescript-sdk).
+Forge MCP is the agent-facing bridge for current Agent Forge workflows. It is useful when a coding agent needs an MCP surface for org switching, entity CRUD, conversation simulation, and version-set operations.
+
+![Forge MCP prototype architecture](./assets/readme/forge-prototype-architecture.svg)
+
+For direct typed application integrations against the Platform API, use [`@amigo-ai/platform-sdk`](https://github.com/amigo-ai/amigo-platform-typescript-sdk).
 
 ## Documentation
 
