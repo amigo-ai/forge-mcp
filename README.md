@@ -1,35 +1,41 @@
-# @amigo-ai/forge-tools
+<h1 align="center">@amigo-ai/forge-tools</h1>
 
-[![npm version](https://img.shields.io/npm/v/%40amigo-ai%2Fforge-tools?logo=npm)](https://www.npmjs.com/package/@amigo-ai/forge-tools)
-[![Publish](https://github.com/amigo-ai/forge-mcp/actions/workflows/publish.yml/badge.svg)](https://github.com/amigo-ai/forge-mcp/actions/workflows/publish.yml)
+<p align="center">Prototype MCP server for Amigo Agent Forge workflows.</p>
 
-Prototype MCP server for Amigo Agent Forge workflows.
+<p align="center">
+  <a href="https://docs.amigo.ai">Product Docs</a>
+  ·
+  <a href="https://github.com/amigo-ai/forge-mcp/issues">GitHub Issues</a>
+  ·
+  <a href="https://github.com/amigo-ai/forge-mcp/blob/main/CONTRIBUTING.md">Contributing</a>
+  ·
+  <a href="https://github.com/amigo-ai/forge-mcp/blob/main/SECURITY.md">Security</a>
+</p>
+
+<p align="center">
+  <a href="https://www.npmjs.com/package/@amigo-ai/forge-tools"><img src="https://img.shields.io/npm/v/%40amigo-ai%2Fforge-tools?logo=npm" alt="npm version" /></a>
+  <a href="https://github.com/amigo-ai/forge-mcp/actions/workflows/test.yml"><img src="https://github.com/amigo-ai/forge-mcp/actions/workflows/test.yml/badge.svg" alt="CI" /></a>
+  <a href="https://github.com/amigo-ai/forge-mcp/actions/workflows/publish.yml"><img src="https://github.com/amigo-ai/forge-mcp/actions/workflows/publish.yml/badge.svg" alt="Publish" /></a>
+</p>
 
 This package gives coding agents access to current Amigo Agent Forge operations: managing org credentials, reading and mutating entity configurations, running conversation tests, and working with version sets from Claude Code, Codex, Cursor, and other MCP clients.
 
+> Prototype status
+>
+> `@amigo-ai/forge-tools` is an experimental product under active development. Expect rough edges, changing tool contracts, and a faster-moving surface than a locked production SDK. Use it for evaluation and early workflows, not as a long-term stability guarantee.
+
+## Tool Context
+
+Forge MCP is the agent-facing bridge for current Agent Forge workflows. It is useful when a coding agent needs an MCP surface for org switching, entity CRUD, conversation simulation, and version-set operations. For direct typed application integrations against the Platform API, use [`@amigo-ai/platform-sdk`](https://github.com/amigo-ai/amigo-platform-typescript-sdk).
+
 ## Documentation
 
-- [Product Docs](https://docs.amigo.ai)
-- [GitHub Issues](https://github.com/amigo-ai/forge-mcp/issues)
-- [Contributing](https://github.com/amigo-ai/forge-mcp/blob/main/CONTRIBUTING.md)
-- [Security](https://github.com/amigo-ai/forge-mcp/blob/main/SECURITY.md)
-
-## Status
-
-`@amigo-ai/forge-tools` is a prototype product under active development.
-
-- Expect rough edges and changing tool contracts
-- Treat the current MCP surface as experimental, not a long-term stability guarantee
-- Use it for evaluation and early workflows, not as a fully locked production integration surface
-
-As equivalent platform-native management surfaces mature, Amigo will publish the longer-term path for MCP users. This repo is intentionally positioned as an early prototype today.
-
-## Choose The Right Tool
-
-| If you need | Use |
+| Need | Best entry point |
 | --- | --- |
-| An experimental MCP-driven Agent Forge prototype for coding agents | `@amigo-ai/forge-tools` |
-| Direct typed application access to the Platform API | [`@amigo-ai/platform-sdk`](https://github.com/amigo-ai/amigo-platform-typescript-sdk) |
+| Product and platform docs | [docs.amigo.ai](https://docs.amigo.ai/) |
+| Prototype repo issues and feedback | [GitHub Issues](https://github.com/amigo-ai/forge-mcp/issues) |
+| Contributor guidance | [CONTRIBUTING.md](https://github.com/amigo-ai/forge-mcp/blob/main/CONTRIBUTING.md) |
+| Security reporting | [SECURITY.md](https://github.com/amigo-ai/forge-mcp/blob/main/SECURITY.md) |
 
 ## Installation
 
@@ -61,7 +67,7 @@ Add the server to your MCP configuration.
 }
 ```
 
-### From A Local Clone
+### From a local clone
 
 ```bash
 git clone git@github.com:amigo-ai/forge-mcp.git
@@ -85,7 +91,7 @@ npm run build
 
 Credentials are stored per org in `~/.amigo/credentials/{org_id}.json`.
 
-### Recommended Flow
+### Recommended flow
 
 Start the server without environment variables, then ask your coding agent to add org credentials:
 
@@ -96,7 +102,7 @@ Use forge_add_org to add credentials for org "acme-staging"
 
 The tool validates credentials by signing in before saving them.
 
-### Bootstrap With Environment Variables
+### Bootstrap with environment variables
 
 You can bootstrap one org on startup:
 
@@ -117,7 +123,7 @@ You can bootstrap one org on startup:
 }
 ```
 
-## What Your Agent Can Do
+## What your agent can do
 
 - Add, remove, list, and switch active org credentials
 - Create, update, read, list, and delete Agent Forge entity types
@@ -125,7 +131,7 @@ You can bootstrap one org on startup:
 - Inspect conversation insights and evaluations
 - Manage version sets and rollbacks
 
-## Multi-Org Support
+## Multi-org support
 
 All tools accept an optional `org_id`. Resolution order is:
 
@@ -133,9 +139,9 @@ All tools accept an optional `org_id`. Resolution order is:
 2. Session org set by `forge_set_org`
 3. Default org in `~/.amigo/config.json`
 
-## Tool Catalog
+## Tool catalog
 
-### Org Management
+### Org management
 
 | Tool | Description |
 | --- | --- |
@@ -156,7 +162,7 @@ All tools accept an optional `org_id`. Resolution order is:
 
 Supported entity types: `agent`, `context_graph`, `service`, `dynamic_behavior_set`, `tool`, `persona`, `scenario`, `metric`, `unit_test`, `unit_test_set`, `user_dimension`
 
-### Conversation Testing
+### Conversation testing
 
 | Tool | Description |
 | --- | --- |
@@ -165,7 +171,7 @@ Supported entity types: `agent`, `context_graph`, `service`, `dynamic_behavior_s
 | `forge_conversation_insights` | Inspect state transitions and memory |
 | `forge_conversation_evaluate` | Run on-demand metric evaluation |
 
-### Version Management
+### Version management
 
 | Tool | Description |
 | --- | --- |

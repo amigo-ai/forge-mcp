@@ -6,7 +6,8 @@
   "main": "dist/index.js",
   "files": [
     "dist",
-    "README.md"
+    "README.md",
+    "LICENSE"
   ],
   "bin": {
     "forge-mcp": "dist/index.js"
@@ -23,6 +24,7 @@
     "mcp",
     "amigo",
     "agent-forge",
+    "prototype",
     "ai-agents",
     "model-context-protocol"
   ],
