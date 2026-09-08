@@ -47,6 +47,8 @@ For direct typed application integrations against the Platform API, use [`@amigo
 
 ## Installation
 
+Requires Node.js 18 or newer; development and CI use Node.js 22. This prototype uses Classic API organization credentials at `api.amigo.ai`; Platform workspace keys are not interchangeable. Start with a designated test organization because its tools can create, update, and delete configuration.
+
 Add the server to your MCP configuration.
 
 ### Via npm
@@ -78,9 +80,9 @@ Add the server to your MCP configuration.
 ### From a local clone
 
 ```bash
-git clone git@github.com:amigo-ai/forge-mcp.git
+git clone https://github.com/amigo-ai/forge-mcp.git
 cd forge-mcp
-npm install
+npm ci
 npm run build
 ```
 
@@ -209,7 +211,7 @@ All variables are optional and only apply to startup bootstrap:
 ## Development
 
 ```bash
-npm install
+npm ci
 npm run build
 npm run lint
 npm test

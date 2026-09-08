@@ -7,7 +7,7 @@ This repository is an experimental prototype. Public behavior may evolve quickly
 ## Development Setup
 
 ```bash
-npm install
+npm ci
 ```
 
 ## Scripts
