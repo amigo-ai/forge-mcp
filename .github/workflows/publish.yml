@@ -28,6 +28,9 @@ jobs:
           cache: npm
           registry-url: https://registry.npmjs.org
 
+      - name: Install npm with trusted publishing support
+        run: npm install --global npm@11.13.0
+
       - name: Install dependencies
         run: npm ci
 
@@ -41,8 +44,14 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Verify tested source is still the branch head
+        run: |
           git fetch origin "${GITHUB_REF_NAME}"
-          git checkout -B "${GITHUB_REF_NAME}" "origin/${GITHUB_REF_NAME}"
+          if [ "$(git rev-parse HEAD)" != "$(git rev-parse "origin/${GITHUB_REF_NAME}")" ]; then
+            echo "::error::The branch advanced after this run started. Publish the newer commit through its own workflow run."
+            exit 1
+          fi
 
       - name: Increment version (patch)
         id: version
